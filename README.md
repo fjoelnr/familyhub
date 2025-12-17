@@ -34,3 +34,53 @@ You can check out [the Next.js GitHub repository](https://github.com/vercel/next
 The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
 
 Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+
+## Data Sync & APIs
+
+This project includes utilities for fetching Weather and Calendar data.
+
+### Configuration
+
+Create a `.env.local` file with the following variables:
+
+```env
+# Weather (OpenWeatherMap)
+OPENWEATHER_API_KEY=your_api_key_here
+
+# Calendar (CalDAV / Baïkal)
+CALDAV_URL=https://your-baikal-server/dav/calendars/user/calendar_name/
+CALDAV_USERNAME=your_username
+CALDAV_PASSWORD=your_password
+
+# Development
+USE_MOCK_DATA=false # Set to true to use offline mock data
+```
+
+### Usage
+
+**Weather:**
+
+```typescript
+import { fetchWeather } from '@/lib/api/fetchWeather';
+
+const data = await fetchWeather('London');
+// or
+const data = await fetchWeather({ lat: 51.5074, lon: -0.1278 });
+```
+
+**Calendar:**
+
+```typescript
+import { CalendarSync } from '@/lib/api/calendarSync';
+
+const calendar = new CalendarSync();
+const events = await calendar.getEvents(startDate, endDate);
+```
+
+### Testing
+
+Run unit tests with:
+
+```bash
+npm test
+```

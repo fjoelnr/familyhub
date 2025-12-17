@@ -1,11 +1,11 @@
 import { WeatherData } from './weather';
 import { CalendarEvent } from './calendar';
 
-export interface WeatherResponse extends WeatherData { }
+export type WeatherResponse = WeatherData;
 
-export interface CalendarEventResponse extends CalendarEvent { }
+export type CalendarEventResponse = CalendarEvent;
 
 export interface ApiError {
     error: string;
-    details?: any;
+    details?: unknown;
 }

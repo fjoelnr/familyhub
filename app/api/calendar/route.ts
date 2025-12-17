@@ -1,8 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { CalendarEventResponse, ApiError } from '@/lib/contracts/api';
+import { CalendarEventResponse } from '@/lib/contracts/api';
 
 // In-memory storage placeholder
-let events: CalendarEventResponse[] = [
+const events: CalendarEventResponse[] = [
     {
         id: '1',
         title: 'Family Dinner',
@@ -49,7 +49,7 @@ export async function POST(request: NextRequest) {
         // TODO: Persist to database
 
         return NextResponse.json(newEvent, { status: 201 });
-    } catch (error) {
+    } catch {
         return NextResponse.json({ error: 'Invalid request body' }, { status: 400 });
     }
 }
@@ -71,7 +71,7 @@ export async function PUT(request: NextRequest) {
         // TODO: Update in database
 
         return NextResponse.json(events[index]);
-    } catch (error) {
+    } catch {
         return NextResponse.json({ error: 'Invalid request body' }, { status: 400 });
     }
 }

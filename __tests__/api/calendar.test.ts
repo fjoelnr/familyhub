@@ -45,7 +45,7 @@ describe('Calendar API', () => {
     it('PUT updates an event (stub)', async () => {
         const req = new Request('http://localhost/api/calendar', {
             method: 'PUT',
-            body: JSON.stringify({ ...mockEventPayload, id: '123', title: 'Updated' })
+            body: JSON.stringify({ ...mockEventPayload, id: '1', title: 'Updated' })
         });
 
         const response = await PUT(req);
@@ -55,7 +55,7 @@ describe('Calendar API', () => {
     });
 
     it('DELETE removes an event (stub)', async () => {
-        const req = new Request('http://localhost/api/calendar?id=123', {
+        const req = new Request('http://localhost/api/calendar?id=1', {
             method: 'DELETE'
         });
 

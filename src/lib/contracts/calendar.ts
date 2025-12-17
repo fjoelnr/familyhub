@@ -13,5 +13,5 @@ export interface CalendarEvent {
     source: string;
     location?: string;
     attendees?: string[];
-    raw?: any;
+    raw?: unknown;
 }

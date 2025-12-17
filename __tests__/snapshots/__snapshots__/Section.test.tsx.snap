@@ -1,0 +1,18 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Section Snapshot renders correctly with title and children 1`] = `
+<div>
+  <section
+    class="bg-gray-800 rounded-xl p-6 shadow-lg border border-gray-700"
+  >
+    <h2
+      class="text-2xl font-bold mb-3"
+    >
+      My Section Title
+    </h2>
+    <p>
+      Section Content
+    </p>
+  </section>
+</div>
+`;

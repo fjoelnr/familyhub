@@ -1,10 +1,26 @@
-export default function HubShell({ children }: { children: React.ReactNode }) {
-    return (
-        <main className="min-h-screen bg-gray-900 text-gray-100 p-8 space-y-6">
-            <div className="max-w-5xl mx-auto space-y-6">
-                {children}
-            </div>
-        </main>
-    );
-}
+import React from 'react';
+import { AmbientCanvas } from '../zones/AmbientCanvas';
+import { StatusRail } from '../zones/StatusRail';
+import { FluidStage } from '../zones/FluidStage';
+import { InputDeck } from '../zones/InputDeck';
 
+export const HubShell: React.FC = () => {
+    return (
+        <div className="relative w-screen h-screen overflow-hidden flex flex-col">
+            {/* Zone A: Background (Layer 0) */}
+            <AmbientCanvas />
+
+            {/* Foreground Content (Layer 1) */}
+            <div className="relative z-10 flex flex-col h-full">
+                {/* Zone B: Top Persistent Rail */}
+                <StatusRail />
+
+                {/* Zone C: Main Stage (Flexible) */}
+                <FluidStage />
+
+                {/* Zone D: Bottom Input (Fixed) */}
+                <InputDeck />
+            </div>
+        </div>
+    );
+};

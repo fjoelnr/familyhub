@@ -1,0 +1,17 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`HubShell Snapshot renders correctly with children 1`] = `
+<div>
+  <main
+    class="min-h-screen bg-gray-900 text-gray-100 p-8 space-y-6"
+  >
+    <div
+      class="max-w-5xl mx-auto space-y-6"
+    >
+      <div>
+        Test Content
+      </div>
+    </div>
+  </main>
+</div>
+`;
