@@ -1,31 +1,49 @@
-import React from 'react';
-import { useFamilyHub } from '../../lib/contexts/FamilyHubContext';
+"use client";
 
-export const AmbientCanvas: React.FC = () => {
-    const { context } = useFamilyHub();
-    const { uiMode } = context;
+import { useEffect, useState } from "react";
+import { useFamilyHub } from "@/lib/contexts/FamilyHubContext";
+import CalendarWidget from "@/components/widgets/CalendarWidget";
+import { CalendarEvent } from "@/lib/contracts/calendar";
 
-    const getBackgroundClass = () => {
-        switch (uiMode) {
-            case 'calm':
-                return 'bg-gradient-to-br from-stone-50 to-stone-200';
-            case 'nerdy':
-                return 'bg-slate-900 border-2 border-green-500/20';
-            case 'manga':
-                return 'bg-pink-50 bg-[url("data:image/svg+xml,%3Csvg width=\'20\' height=\'20\' viewBox=\'0 0 20 20\' xmlns=\'http://www.w3.org/2000/svg\'%3E%3Cg fill=\'%23f9a8d4\' fill-opacity=\'0.4\' fill-rule=\'evenodd\'%3E%3Ccircle cx=\'3\' cy=\'3\' r=\'3\'/%3E%3Ccircle cx=\'13\' cy=\'13\' r=\'3\'/%3E%3C/g%3E%3C/svg%3E")]';
-            default:
-                return 'bg-white';
-        }
-    };
+export default function AmbientCanvas() {
+    const { context } = useFamilyHub(); // Use central time/date source
+    const [events, setEvents] = useState<CalendarEvent[]>([]);
+
+    useEffect(() => {
+        // Fetch up next events
+        // TODO: SWR would be better here
+        fetch('/api/calendar?start=' + new Date().toISOString())
+            .then(res => res.json())
+            .then(data => {
+                if (Array.isArray(data)) {
+                    setEvents(data.slice(0, 3)); // Show top 3
+                }
+            })
+            .catch(err => console.error("Failed to load dashboard events", err));
+    }, []);
+
+    // Fallback if context time is missing (shouldn't happen with provider)
+    const timeDisplay = context.time || "--:--";
+    const dateDisplay = context.date ? new Date(context.date).toLocaleDateString([], { weekday: 'long', month: 'long', day: 'numeric' }) : "Loading...";
 
     return (
-        <div
-            className={`fixed inset-0 z-0 transition-colors duration-1000 ${getBackgroundClass()}`}
-            aria-hidden="true"
-        >
-            {uiMode === 'nerdy' && (
-                <div className="absolute inset-0 opacity-10 pointer-events-none" style={{ backgroundImage: 'linear-gradient(0deg, transparent 24%, #00ff00 25%, #00ff00 26%, transparent 27%, transparent 74%, #00ff00 75%, #00ff00 76%, transparent 77%, transparent), linear-gradient(90deg, transparent 24%, #00ff00 25%, #00ff00 26%, transparent 27%, transparent 74%, #00ff00 75%, #00ff00 76%, transparent 77%, transparent)', backgroundSize: '50px 50px' }}></div>
-            )}
+        <div className="flex flex-col items-center justify-center h-full space-y-8 animate-in fade-in duration-700">
+            <div className="text-center">
+                <div className="text-8xl font-thin tracking-tighter text-[var(--foreground)] transition-colors duration-500" suppressHydrationWarning>
+                    {timeDisplay}
+                </div>
+                <div className="text-2xl font-light text-[var(--foreground)] opacity-80 mt-2 transition-colors duration-500" suppressHydrationWarning>
+                    {dateDisplay}
+                </div>
+            </div>
+
+            <div className="bg-slate-800/50 p-6 rounded-2xl backdrop-blur-sm border border-slate-700/50 w-full max-w-md transition-all hover:bg-slate-800/70">
+                <h3 className="text-xs uppercase tracking-widest text-slate-500 mb-4 font-bold flex items-center gap-2">
+                    <span className="w-2 h-2 rounded-full bg-blue-500"></span>
+                    Up Next
+                </h3>
+                <CalendarWidget events={events} />
+            </div>
         </div>
     );
-};
+}

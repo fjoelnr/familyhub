@@ -1,4 +1,4 @@
-import { ChatOptions, ChatResponse, Message, Role } from "@/lib/contracts/ai";
+import { ChatOptions, ChatResponse, Message } from "@/lib/contracts/ai";
 import { getContextSnapshot } from "@/lib/context/getContextSnapshot";
 import { callOllama } from "./providers/ollama";
 import { callOpenAI } from "./providers/openai";
@@ -39,7 +39,7 @@ export async function createChatResponse(
     const finalContext = { ...snapshot, ...(options?.contextOverride || {}) };
 
     // 3. Prepare Messages
-    const systemPrompt = options?.systemPromptOverride || getSystemPrompt(finalContext.uiMode, stringifyContext(finalContext as any));
+    const systemPrompt = options?.systemPromptOverride || getSystemPrompt(finalContext.uiMode, stringifyContext(finalContext as unknown as Record<string, unknown>));
     const messages: Message[] = [
         { role: "system", content: systemPrompt },
         { role: "user", content: input }

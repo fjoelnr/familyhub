@@ -1,7 +1,7 @@
 import { createChatResponse } from "@/lib/ai/chatOrchestrator";
 import * as ollamaProvider from "@/lib/ai/providers/ollama";
 import * as openaiProvider from "@/lib/ai/providers/openai";
-import { ChatResponse } from "@/lib/contracts/ai";
+import { ChatResponse, Message } from "@/lib/contracts/ai";
 
 // Mock the providers
 jest.mock("@/lib/ai/providers/ollama");
@@ -79,7 +79,7 @@ describe("chatOrchestrator", () => {
 
         const calls = mockCallOllama.mock.calls;
         const messages = calls[0][0]; // First arg is messages array
-        const systemMessage = messages.find((m: any) => m.role === "system");
+        const systemMessage = messages.find((m: Message) => m.role === "system");
 
         expect(systemMessage.content).toContain("You are a highly technical, nerdy assistant");
         expect(systemMessage.content).toContain("12:00");

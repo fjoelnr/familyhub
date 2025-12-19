@@ -1,7 +1,7 @@
-import { IntentResult } from '../ai/intentClassifier';
+import { IntentResult } from '../contracts/ai';
 import { ContextSnapshot } from '../contracts/context';
 import { createChatResponse } from '../ai/chatOrchestrator';
-import { AgentResponse } from './agentRouter';
+import { AgentResponse } from '../contracts/agents';
 
 const EXPLANATION_PERSONAS: Record<string, string> = {
     calm: "You are a gentle, patient tutor. Explain things simply and clearly, using calming language. Avoid harsh technical jargon unless necessary, and if so, explain it softly.",
@@ -57,13 +57,15 @@ Do not execute any actions. Just explain.
 
         return {
             type: 'chat',
+            role: 'assistant',
             text: chatResponse.text
         };
     } catch (error) {
         console.error("Explain Agent Error:", error);
         return {
             type: 'error',
-            text: "I'm having trouble coming up with an explanation right now. My brain is buffering!"
+            role: 'assistant',
+            text: "I couldn't come up with an explanation right now."
         };
     }
 }

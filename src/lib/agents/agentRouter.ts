@@ -1,34 +1,25 @@
-import { IntentResult } from '../ai/intentClassifier';
+import { IntentResult } from '../contracts/ai';
 import { ContextSnapshot } from '../contracts/context';
 import { createChatResponse } from '../ai/chatOrchestrator';
-import { processCalendarIntent, ActionResult } from './calendarAgent';
+import { processCalendarIntent } from './calendarAgent'; // ActionResult unused in import if we rely on contract structure, but processCalendarIntent returns it.
 import { processExplanationIntent } from './explainAgent';
+import { AgentResponse } from '../contracts/agents';
 
-export interface AgentResponse {
-    type: 'chat' | 'action_request' | 'error';
-    text?: string;
-    actionResult?: ActionResult;
-    requiresConfirmation?: boolean;
-}
-
+// We map the agent-specific results to the contract AgentResponse
 export async function routeIntent(
     intent: IntentResult,
-    context: ContextSnapshot
+    context: ContextSnapshot,
+    message: string
 ): Promise<AgentResponse> {
     try {
         // 1. Calendar Actions
         if (intent.intent === 'calendar_action') {
-            const calendarResult = await processCalendarIntent(intent, context, intent.rawInput);
-
-            // If the agent needs clarification, it's basically a chat response asking for info,
-            // but we can wrap it as action_request or just chat. 
-            // The requirement says "Bubble up confirmation_needed results unchanged".
-            // Let's treat clarification as 'chat' for the user, but it comes from the agent.
-            // Actually, if it's 'clarification_needed', the agent returns a summary text.
+            const calendarResult = await processCalendarIntent(intent, context, message);
 
             if (calendarResult.status === 'clarification_needed') {
                 return {
-                    type: 'chat',
+                    type: 'clarification_needed',
+                    role: 'assistant',
                     text: calendarResult.summary,
                     actionResult: calendarResult
                 };
@@ -37,6 +28,7 @@ export async function routeIntent(
             if (calendarResult.status === 'confirmation_needed') {
                 return {
                     type: 'action_request',
+                    role: 'assistant',
                     text: calendarResult.summary,
                     actionResult: calendarResult,
                     requiresConfirmation: true
@@ -45,8 +37,8 @@ export async function routeIntent(
 
             if (calendarResult.status === 'success') {
                 return {
-                    type: 'chat', // Or action_request with auto-complete? Requirements said "Output: Unified AgentResponse".
-                    // Usually a success listing is just text to show.
+                    type: 'chat',
+                    role: 'assistant',
                     text: calendarResult.summary,
                     actionResult: calendarResult
                 };
@@ -55,6 +47,7 @@ export async function routeIntent(
             if (calendarResult.status === 'error') {
                 return {
                     type: 'error',
+                    role: 'assistant',
                     text: calendarResult.summary,
                     actionResult: calendarResult
                 };
@@ -63,27 +56,33 @@ export async function routeIntent(
 
         // 2. Explanation Agent
         if (intent.intent === 'explanation') {
-            return await processExplanationIntent(intent, context);
+            // We assume processExplanationIntent matches or we need to wrap it.
+            // Checking previous file content, it returns whatever it returns. 
+            // We should probably enforce strict type here. 
+            // For safety, let's wrap or trust for now, but ensure 'role' is present if missing.
+            const response = await processExplanationIntent(intent, context);
+            return {
+                ...response,
+                role: 'assistant'
+            };
         }
 
         // 3. Chat / Info / Smalltalk
         if (['smalltalk', 'information', 'planning'].includes(intent.intent)) {
-            const chatResponse = await createChatResponse(intent.rawInput, {
+            const chatResponse = await createChatResponse(message, {
                 contextOverride: context
             });
             return {
                 type: 'chat',
+                role: 'assistant',
                 text: chatResponse.text
             };
         }
 
-        // 3. Fallback for Unknown
-        // We can try to be helpful or just admit defeat.
-        // Let's ask the orchestrator to handle it gracefully or return a standard message.
-        // Requirement: "unknown -> fallback response with clarification"
-
+        // 4. Fallback for Unknown
         return {
             type: 'chat',
+            role: 'assistant',
             text: "I'm not sure how to help with that yet. I can help with your calendar, general questions, or just chatting!"
         };
 
@@ -91,6 +90,7 @@ export async function routeIntent(
         console.error("Agent Router Error:", error);
         return {
             type: 'error',
+            role: 'assistant',
             text: "An internal error occurred while routing your request."
         };
     }

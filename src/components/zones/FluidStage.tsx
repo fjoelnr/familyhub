@@ -1,128 +1,185 @@
-import React from 'react';
-import { useFamilyHub } from '../../lib/contexts/FamilyHubContext';
-import { ActionConfirmationCard } from '../widgets/ActionConfirmationCard';
-// Mock imports if real widgets aren't ready to be properly styled for this context yet
-// For now, we'll keep the placeholders but structured better.
+"use client";
 
-export const FluidStage: React.FC = () => {
-    const { context, isInteracting, conversationHistory, latestAgentResponse, addAgentResponse, setInteracting } = useFamilyHub();
+import { useEffect, useState } from "react";
+import { useAgentRuntime } from "@/lib/contexts/AgentRuntimeContext";
+import { useFamilyHub } from "@/lib/contexts/FamilyHubContext";
+import CalendarWidget from "@/components/widgets/CalendarWidget";
+import { AgentResponse } from "@/lib/contracts/agents";
+import { CalendarEvent } from "@/lib/contracts/calendar";
 
-    const handleConfirm = () => {
-        addAgentResponse({
-            type: 'chat',
-            text: 'Action confirmed! (Mock)'
-        });
-        // In reality, this would trigger the actual agent action
-    };
+import AmbientCanvas from "@/components/zones/AmbientCanvas";
 
-    const handleCancel = () => {
-        addAgentResponse({
-            type: 'chat',
-            text: 'Action cancelled.'
-        });
-    };
-
+// --- SUBLAYOUT: Awaiting Confirmation ---
+function ConfirmationView({
+    response,
+    onConfirm,
+    onCancel
+}: {
+    response: AgentResponse;
+    onConfirm: () => void;
+    onCancel: () => void;
+}) {
     return (
-        <main className="flex z-10 flex-col flex-1 justify-center items-center p-8 w-full max-w-5xl mx-auto overflow-hidden relative">
-            {isInteracting ? (
-                <div className="w-full max-w-2xl space-y-4 max-h-full overflow-y-auto pb-20 no-scrollbar">
-                    {/* Conversation History */}
-                    {conversationHistory.length === 0 && (
-                        <div className="text-center opacity-50 py-10">Start typing to chat...</div>
-                    )}
-
-                    {conversationHistory.map((response, idx) => {
-                        // Skip rendering the last one if it is an action request, because we render that permanently below?
-                        // Actually, chat history should just be history.
-                        // But pending action requests should be prominent.
-
-                        // If it's a past action request, show it as processed.
-                        if (response.type === 'action_request' && response !== latestAgentResponse) {
-                            return (
-                                <div key={idx} className="bg-stone-100 p-4 rounded-xl text-stone-500 text-sm italic ml-auto max-w-[80%]">
-                                    Pending request from history: {response.text}
-                                </div>
-                            )
-                        }
-
-                        if (response.type === 'action_request' && response === latestAgentResponse) {
-                            return (
-                                <ActionConfirmationCard
-                                    key={idx}
-                                    text={response.text || 'Confirm action?'}
-                                    onConfirm={handleConfirm}
-                                    onCancel={handleCancel}
-                                />
-                            );
-                        }
-
-                        return (
-                            <div key={idx} className={`
-                                p-4 rounded-xl shadow-sm max-w-[80%] animate-slide-up
-                                ${response.type === 'chat' /* We need to distinguish user vs agent. Right now we only have agent responses in history? */
-                                    // The context 'addAgentResponse' seems to mock user input as agent response type 'chat' in inputDeck.
-                                    // We should probably differentiate. But for now, let's assume all right-aligned are user?
-                                    // Wait, InputDeck says "I heard: ..." as an agent response.
-                                    // So everything is Left Aligned (Agent) currently.
-                                    ? 'bg-white/80 mr-auto text-stone-800' : ''}
-                            `}>
-                                {response.text}
-                            </div>
-                        );
-                    })}
-
-                    {/* Spacer for bottom input */}
-                    <div className="h-4"></div>
+        <div className="flex items-center justify-center h-full animate-in zoom-in-95 duration-300">
+            <div className="bg-slate-800 p-8 rounded-xl border border-slate-700 max-w-lg w-full shadow-2xl space-y-6">
+                <div className="space-y-2">
+                    <h2 className="text-2xl font-light text-white">Confirmation Required</h2>
+                    <p className="text-lg text-slate-300 leading-relaxed">{response.text}</p>
                 </div>
-            ) : (
-                <DashboardView context={context} />
-            )}
-        </main>
-    );
-};
 
-const DashboardView: React.FC<{ context: any }> = ({ context }) => {
-    return (
-        <div className="text-center space-y-8 animate-fade-in w-full max-w-4xl">
-            <header className="space-y-2">
-                <h1 className={`text-7xl ${context.uiMode === 'nerdy' ? 'font-mono' : 'font-serif tracking-tight'} opacity-90 text-stone-800`}>
-                    {context.dayPhase === 'morning' ? 'Good Morning' :
-                        context.dayPhase === 'evening' ? 'Good Evening' : 'Welcome Home'}
-                </h1>
-                <div className="text-2xl text-stone-500 font-light">
-                    {context.regionalHoliday ? `Today is ${context.regionalHoliday}` : "It's a quiet day."}
+                {response.actionResult && (
+                    <div className="bg-slate-900/50 p-4 rounded border border-slate-800 font-mono text-sm text-blue-300 overflow-x-auto">
+                        <pre>{JSON.stringify(response.actionResult, null, 2)}</pre>
+                    </div>
+                )}
+
+                <div className="flex gap-4 pt-4">
+                    <button
+                        onClick={onConfirm}
+                        className="flex-1 py-3 bg-blue-600 hover:bg-blue-500 text-white rounded-lg font-medium transition-colors shadow-lg hover:shadow-blue-900/20"
+                    >
+                        Confirm Action
+                    </button>
+                    <button
+                        onClick={onCancel}
+                        className="flex-1 py-3 bg-slate-700 hover:bg-slate-600 text-slate-200 rounded-lg font-medium transition-colors"
+                    >
+                        Cancel
+                    </button>
                 </div>
-            </header>
-
-            {/* Dashboard Grid */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-12">
-                <DashboardCard title="Up Next">
-                    <div className="flex items-center gap-4">
-                        <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center text-blue-600">📅</div>
-                        <div className="text-left">
-                            <div className="font-bold text-stone-700">Family Dinner</div>
-                            <div className="text-sm text-stone-500">19:00 - Kitchen</div>
-                        </div>
-                    </div>
-                </DashboardCard>
-
-                <DashboardCard title="Reminders">
-                    <div className="flex items-center gap-4">
-                        <div className="w-12 h-12 bg-orange-100 rounded-full flex items-center justify-center text-orange-600">📝</div>
-                        <div className="text-left">
-                            <div className="font-bold text-stone-700">Buy Milk</div>
-                            <div className="text-sm text-stone-500">Supermarket</div>
-                        </div>
-                    </div>
-                </DashboardCard>
             </div>
         </div>
     );
-};
+}
 
-const DashboardCard: React.FC<{ title: string, children: React.ReactNode }> = ({ title, children }) => (
-    <div className="bg-white/60 backdrop-blur-sm p-6 rounded-2xl border border-white/50 shadow-sm hover:shadow-md transition-shadow">
-        <h3 className="text-xs uppercase tracking-widest text-stone-400 mb-4 text-left">{title}</h3>
-        {children}
-    </div>
-);
+// --- MAIN LAYOUT ---
+export default function FluidStage() {
+    const { state, uiState, resetToIdle, pushResponse } = useAgentRuntime();
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const { context } = useFamilyHub(); // Access mainly for debug if needed, but IdleDashboard uses it
+
+    const handleConfirm = async () => {
+        // Find the action payload to send back
+        const actionResponse = state.responses.findLast((r) => r.requiresConfirmation);
+        const payload = actionResponse?.actionResult?.payload;
+
+        // Optimistic UI update handled by resetting to idle? 
+        // No, we want to show "Confirmed" message or wait for response.
+        // We push a "User Confirmed" message.
+        const message = `Confirm calendar event: ${JSON.stringify(payload)}`;
+
+        resetToIdle(); // Close the modal immediately
+
+        pushResponse({
+            type: "chat",
+            role: "user",
+            text: "Confirmed.", // Show pretty text in chat
+        });
+
+        // We stay in chat mode effectively (or background)
+        // Actually resetToIdle sets state to idle.
+        // But sendChatMessage might take time.
+        // If we want to see the result, we should be in chat mode?
+        // UR-007 says return to calm after inactivity. 
+        // If we confirm, we probably want to see the "Success" message.
+
+        // Let's NOT resetToIdle immediately if we want to see result.
+        // But the requirements say "blocking confirmation UI".
+        // Once confirmed, the blocking UI should vanish.
+        // So we switch to 'chat' state effectively? (which is default if not idle/awaiting).
+        // resetToIdle sets 'idle'. 
+        // useAgentRuntime pushResponse calls startInteraction() automatically for new messages.
+        // So pushing response triggers chat mode.
+
+        try {
+            const response = await import("@/lib/ui/sendChatMessage").then(m => m.sendChatMessage(message));
+            pushResponse(response);
+        } catch (e) {
+            console.error(e);
+            pushResponse({
+                type: "error",
+                role: "assistant",
+                text: "Failed to execute action.",
+            });
+        }
+    };
+
+    const handleCancel = () => {
+        resetToIdle();
+        pushResponse({
+            type: "chat",
+            role: "user",
+            text: "Cancelled.",
+        });
+        // We don't necessarily need to tell backend, but contextually it's good.
+        // For now, just local cancel is safe as backend is stateless.
+    };
+
+    // 1. Idle State
+    if (uiState === "idle") {
+        return (
+            <div className="flex-1 h-full overflow-hidden relative">
+                <AmbientCanvas />
+            </div>
+        );
+    }
+
+    // 2. Confirmation State (Priority over chat if active)
+    if (uiState === "awaiting_action") {
+        // Find the last response that triggered this state
+        const actionResponse = state.responses.findLast((r) => r.requiresConfirmation);
+        if (actionResponse) {
+            return (
+                <div className="flex-1 h-full overflow-hidden relative p-4">
+                    <ConfirmationView
+                        response={actionResponse}
+                        onConfirm={handleConfirm}
+                        onCancel={handleCancel}
+                    />
+                </div>
+            );
+        }
+        // Fallback if no response found (shouldn't happen)
+        return <div className="flex-1 flex items-center justify-center">Error: No Action Found</div>;
+    }
+
+    // 3. Chat / Interaction State
+    return (
+        <div className="flex-1 overflow-auto p-4 space-y-4 pb-20 scroll-smooth">
+            {state.responses.map((r, i) => (
+                <div
+                    key={i}
+                    className={`flex flex-col max-w-[80%] animate-in slide-in-from-bottom-2 duration-300 ${r.role === "user"
+                        ? "self-end items-end ml-auto"
+                        : "self-start items-start mr-auto"
+                        }`}
+                >
+                    <div
+                        className={`rounded-2xl px-5 py-3 shadow-sm ${r.role === "user"
+                            ? "bg-blue-600 text-white rounded-br-none"
+                            : "bg-slate-700 border border-slate-600 text-slate-100 rounded-bl-none"
+                            }`}
+                    >
+                        <div className="whitespace-pre-wrap leading-relaxed">{r.text}</div>
+
+                        {/* Render Calendar Events inline during chat if provided */}
+                        {r.actionResult &&
+                            Array.isArray(r.actionResult.payload) && (
+                                <div className="mt-3 bg-slate-800/50 -mx-2 p-2 rounded">
+                                    <CalendarWidget events={r.actionResult.payload} />
+                                </div>
+                            )}
+
+                        {r.type === 'clarification_needed' && (
+                            <div className="mt-2 text-amber-300 text-sm font-medium flex items-center gap-1">
+                                <span>🤔</span> Could you clarify?
+                            </div>
+                        )}
+                    </div>
+                </div>
+            ))}
+            {/* Spacer for scrolling */}
+            <div className="h-4" />
+        </div>
+    );
+}

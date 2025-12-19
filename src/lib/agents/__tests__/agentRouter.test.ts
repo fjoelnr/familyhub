@@ -1,5 +1,5 @@
-import { routeIntent, AgentResponse } from '../agentRouter';
-import { IntentResult } from '../../ai/intentClassifier';
+import { routeIntent } from '../agentRouter';
+import { IntentResult } from '@/lib/contracts/ai';
 import { ContextSnapshot } from '../../contracts/context';
 
 // Mock dependencies
@@ -23,7 +23,7 @@ describe('Agent Router', () => {
         dayType: 'schoolDay',
         regionalHoliday: null,
         schoolHolidayRange: null,
-        uiMode: 'default',
+        uiMode: 'calm',
         presence: { home: true }
     };
 
@@ -38,11 +38,12 @@ describe('Agent Router', () => {
             rawInput: 'Hello'
         };
 
-        const response = await routeIntent(intent, mockContext);
+        const response = await routeIntent(intent, mockContext, intent.rawInput);
 
         expect(createChatResponse).toHaveBeenCalledWith('Hello', expect.objectContaining({ contextOverride: mockContext }));
         expect(response).toEqual({
             type: 'chat',
+            role: 'assistant',
             text: "Mock Chat Response"
         });
     });
@@ -60,11 +61,12 @@ describe('Agent Router', () => {
             payload: {}
         });
 
-        const response = await routeIntent(intent, mockContext);
+        const response = await routeIntent(intent, mockContext, intent.rawInput);
 
         expect(processCalendarIntent).toHaveBeenCalledWith(intent, mockContext, 'Add event');
         expect(response).toEqual({
             type: 'chat',
+            role: 'assistant',
             text: 'Event added',
             actionResult: expect.anything()
         });
@@ -83,10 +85,11 @@ describe('Agent Router', () => {
             payload: { title: 'dentist' }
         });
 
-        const response = await routeIntent(intent, mockContext);
+        const response = await routeIntent(intent, mockContext, intent.rawInput);
 
         expect(response).toEqual({
             type: 'action_request',
+            role: 'assistant',
             text: 'Confirm dentist?',
             actionResult: expect.anything(),
             requiresConfirmation: true
@@ -106,11 +109,12 @@ describe('Agent Router', () => {
             missingInfo: ['time']
         });
 
-        const response = await routeIntent(intent, mockContext);
+        const response = await routeIntent(intent, mockContext, intent.rawInput);
 
-        // Clarification is treated as a chat response (asking question)
+        // Clarification is treated as its own type now
         expect(response).toEqual({
-            type: 'chat',
+            type: 'clarification_needed',
+            role: 'assistant',
             text: 'What time?',
             actionResult: expect.anything()
         });
@@ -123,7 +127,7 @@ describe('Agent Router', () => {
             rawInput: 'blah blah'
         };
 
-        const response = await routeIntent(intent, mockContext);
+        const response = await routeIntent(intent, mockContext, intent.rawInput);
 
         // Should NOT call external services for unknown (based on current simple implementation)
         expect(createChatResponse).not.toHaveBeenCalled();

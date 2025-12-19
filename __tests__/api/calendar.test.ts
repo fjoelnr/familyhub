@@ -19,7 +19,9 @@ describe('Calendar API', () => {
     };
 
     it('GET returns a list of events', async () => {
-        const response = await GET();
+        const mockRequest = new Request('http://localhost/api/calendar?start=2023-01-01&end=2023-01-31');
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const response = await GET(mockRequest as any);
         const data = await response.json();
 
         // Initial state is empty or as defined in the file
@@ -34,7 +36,8 @@ describe('Calendar API', () => {
             body: JSON.stringify(mockEventPayload)
         });
 
-        const response = await POST(req);
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const response = await POST(req as any);
         const data = await response.json();
 
         expect(response.status).toBe(201);
@@ -48,7 +51,8 @@ describe('Calendar API', () => {
             body: JSON.stringify({ ...mockEventPayload, id: '1', title: 'Updated' })
         });
 
-        const response = await PUT(req);
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const response = await PUT(req as any);
         const data = await response.json();
 
         expect(data.title).toBe('Updated');
@@ -59,7 +63,8 @@ describe('Calendar API', () => {
             method: 'DELETE'
         });
 
-        const response = await DELETE(req);
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const response = await DELETE(req as any);
         const data = await response.json();
 
         expect(data.success).toBe(true);

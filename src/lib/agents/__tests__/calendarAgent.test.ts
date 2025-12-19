@@ -1,4 +1,7 @@
 import { processCalendarIntent } from '../calendarAgent';
+import { IntentResult } from '@/lib/contracts/ai';
+import { CalendarEvent } from '@/lib/contracts/calendar';
+import { ContextSnapshot } from '@/lib/contracts/context';
 import { CalendarSync } from '../../api/calendarSync';
 import { createChatResponse } from '../../ai/chatOrchestrator';
 
@@ -20,18 +23,22 @@ describe('CalendarActionAgent', () => {
         ]);
     });
 
-    const mockContext = {
-        time: "2023-10-10T10:00:00Z",
-        dayType: "workday",
-        activeWidgets: [],
-        device: { type: "hub", location: "kitchen" }
+    const mockContext: ContextSnapshot = {
+        date: "2023-10-10",
+        time: "10:00:00",
+        dayPhase: "morning",
+        dayType: "schoolDay", // valid literal
+        regionalHoliday: null,
+        schoolHolidayRange: null,
+        uiMode: "calm",
+        presence: { home: true }
     };
 
-    const mockIntent = {
+    const mockIntent: IntentResult = {
         intent: "calendar_action",
         confidence: 0.9,
         rawInput: "test input"
-    } as any;
+    };
 
     it('should handle "listing" action successfully', async () => {
         // Mock LLM response for listing
@@ -45,7 +52,7 @@ describe('CalendarActionAgent', () => {
         const result = await processCalendarIntent(mockIntent, mockContext, "What's on this week?");
 
         expect(result.status).toBe('success');
-        expect(result.payload).toHaveLength(1); // From our CalendarSync mock
+        expect((result.payload as CalendarEvent[])).toHaveLength(1); // From our CalendarSync mock
         expect(result.summary).toContain('Found 1 events');
 
         // Verify dependencies called
@@ -86,7 +93,7 @@ describe('CalendarActionAgent', () => {
         const result = await processCalendarIntent(mockIntent, mockContext, "Dentist tomorrow at 2pm");
 
         expect(result.status).toBe('confirmation_needed');
-        expect(result.payload.title).toBe('Dentist');
+        expect((result.payload as Partial<CalendarEvent>).title).toBe('Dentist');
         // Crucially, verify we did NOT call createEvent yet
         expect(mockCalendarSync.prototype.createEvent).not.toHaveBeenCalled();
     });

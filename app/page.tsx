@@ -1,13 +1,13 @@
-"use client";
+import { AgentRuntimeProvider } from "@/lib/contexts/AgentRuntimeContext";
+import { FamilyHubProvider } from "@/lib/contexts/FamilyHubContext";
+import HubShell from "@/components/shell/HubShell";
 
-import React from 'react';
-import { FamilyHubProvider } from '@/lib/contexts/FamilyHubContext';
-import { HubShell } from '@/components/shell/HubShell';
-
-export default function Home() {
+export default function Page() {
   return (
     <FamilyHubProvider>
-      <HubShell />
+      <AgentRuntimeProvider>
+        <HubShell />
+      </AgentRuntimeProvider>
     </FamilyHubProvider>
   );
 }

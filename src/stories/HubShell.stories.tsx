@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/react';
 import React from 'react';
-import { HubShell } from '../components/shell/HubShell';
+import HubShell from '../components/shell/HubShell';
 import { FamilyHubProvider } from '../lib/contexts/FamilyHubContext';
 
 const meta = {

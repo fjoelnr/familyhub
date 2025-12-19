@@ -1,5 +1,6 @@
 import React from 'react';
 import { render, screen } from '@testing-library/react';
+import '@testing-library/jest-dom';
 import CalendarWidget from '@/components/widgets/CalendarWidget';
 import { CalendarEvent } from '@/lib/contracts/calendar';
 
@@ -27,13 +28,13 @@ const mockEvents: CalendarEvent[] = [
 
 describe('CalendarWidget', () => {
     it('renders empty state when events is null', () => {
-        render(<CalendarWidget events={null} />);
-        expect(screen.getByText('Keine Termine')).toBeInTheDocument();
+        render(<CalendarWidget events={null as unknown as CalendarEvent[]} />);
+        expect(screen.getByText('No upcoming events')).toBeInTheDocument();
     });
 
     it('renders empty state when events array is empty', () => {
         render(<CalendarWidget events={[]} />);
-        expect(screen.getByText('Keine Termine')).toBeInTheDocument();
+        expect(screen.getByText('No upcoming events')).toBeInTheDocument();
     });
 
     it('renders list of events', () => {

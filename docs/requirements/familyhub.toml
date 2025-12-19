@@ -1,0 +1,189 @@
+[meta]
+system = "FamilyHub"
+version = "0.3.0"
+status = "active-development"
+last_updated = "2025-12-19"
+branch_policy = "feature/* -> develop, releases -> main"
+
+[meta.ownership]
+product_owner = "Fjölnir"
+architecture_steward = "Professor Synapse"
+requirements_steward = "Requirements Steward Agent"
+certification_agent = "Certification Agent"
+
+# ============================================================
+# NON-FUNCTIONAL REQUIREMENTS (NFR)
+# ============================================================
+
+[[nfr]]
+id = "NFR-001"
+title = "Functional Stability"
+description = "The system must not crash, hang, or display blocking runtime errors during normal operation."
+status = "verified"
+verification = "UI Certification 2025-12-19"
+priority = "critical"
+
+[[nfr]]
+id = "NFR-002"
+title = "Hydration Safety"
+description = "No blocking Next.js hydration overlays or client/server mismatches in development or production."
+status = "verified"
+notes = "suppressHydrationWarning applied selectively"
+priority = "critical"
+
+[[nfr]]
+id = "NFR-003"
+title = "Graceful Degradation"
+description = "If services (LLM, Calendar, Weather) are unavailable, the UI must remain usable with clear feedback."
+status = "implemented"
+priority = "high"
+
+# ============================================================
+# SYSTEM REQUIREMENTS (SR)
+# ============================================================
+
+[[sr]]
+id = "SR-001"
+title = "Agent-Oriented Architecture"
+description = "All user interactions are handled via Intent → Agent → AgentResponse pipeline."
+status = "implemented"
+priority = "critical"
+
+[[sr]]
+id = "SR-002"
+title = "Unified AgentResponse Contract"
+description = "All agents must return a standardized AgentResponse including role, type, and optional actionResult."
+status = "verified"
+priority = "critical"
+
+[[sr]]
+id = "SR-003"
+title = "Safe Action Execution"
+description = "Any state-changing action must require explicit user confirmation."
+status = "verified"
+priority = "critical"
+
+# ============================================================
+# UI REQUIREMENTS (UR)
+# ============================================================
+
+[[ur]]
+id = "UR-001"
+title = "Four-Zone Layout"
+description = "UI must be structured into AmbientCanvas, StatusRail, FluidStage, and InputDeck."
+status = "verified"
+priority = "high"
+
+[[ur]]
+id = "UR-002"
+title = "Calm Intelligence Baseline"
+description = "UI defaults to a non-demanding ambient state and escalates only on interaction."
+status = "implemented"
+priority = "high"
+
+[[ur]]
+id = "UR-003"
+title = "AgentResponse Rendering"
+description = "UI must render chat, clarification_needed, and action_request distinctly."
+status = "verified"
+priority = "critical"
+
+[[ur]]
+id = "UR-004"
+title = "Immediate User Feedback"
+description = "User input must be visible immediately, even before agent response arrives."
+status = "verified"
+priority = "high"
+
+[[ur]]
+id = "UR-005"
+title = "UI Modes"
+description = "The UI must support Calm, Nerdy, and Manga modes with clear visual distinction."
+status = "degraded"
+known_limitations = [
+  "Switching modes resets active view to Idle",
+  "Chat context preserved but visually hidden until interaction"
+]
+priority = "medium"
+
+[[ur]]
+id = "UR-006"
+title = "UI State Machine"
+description = "UI must correctly transition between Idle, Active, Clarification, and Confirmation states."
+status = "verified"
+priority = "high"
+
+[[ur]]
+id = "UR-007"
+title = "Return to Calm"
+description = "After inactivity, the UI should gently return to ambient mode."
+status = "verified"
+notes = "Currently triggers on mode switch as well"
+priority = "low"
+
+# ============================================================
+# AGENT REQUIREMENTS (AR)
+# ============================================================
+
+[[ar]]
+id = "AR-001"
+title = "Intent Classification"
+description = "System must classify user input into a finite, well-defined intent set."
+status = "verified"
+priority = "critical"
+
+[[ar]]
+id = "AR-002"
+title = "Calendar Agent"
+description = "Agent must list, propose, and create calendar events with confirmation."
+status = "implemented"
+priority = "high"
+
+[[ar]]
+id = "AR-003"
+title = "Chat Orchestration"
+description = "System must route to local LLM first and fallback to OpenAI if unavailable."
+status = "implemented"
+priority = "high"
+
+[[ar]]
+id = "AR-004"
+title = "UI Inspection Agent"
+description = "Agent must inspect UI against URs, create PRs, and request user confirmation before merge."
+status = "implemented"
+priority = "high"
+
+# ============================================================
+# PROCESS & GOVERNANCE REQUIREMENTS (PR)
+# ============================================================
+
+[[pr]]
+id = "PR-001"
+title = "Branch Discipline"
+description = "All feature work happens on feature branches and is merged into develop only."
+status = "verified"
+
+[[pr]]
+id = "PR-002"
+title = "Agent Merge Authority"
+description = "Agents may create PRs and propose merges, but must request user confirmation before merging."
+status = "verified"
+
+[[pr]]
+id = "PR-003"
+title = "Requirements-Driven Development"
+description = "Agents must consider and reference relevant requirements when making changes."
+status = "implemented"
+
+# ============================================================
+# LIVING DOCUMENT POLICY
+# ============================================================
+
+[governance]
+document_type = "living"
+update_policy = "Agents may propose changes; user approves"
+certification_required_for = ["NFR", "SR", "UR"]
+
+[governance.change_log]
+"2025-12-19" = "UI stability certification baseline established"
+"2025-12-19-2" = "UR-005 marked as degraded with accepted limitation"

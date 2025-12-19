@@ -1,25 +1,8 @@
 import { ContextSnapshot } from "@/lib/contracts/context";
 import { createChatResponse } from "./chatOrchestrator";
+import { IntentResult } from "@/lib/contracts/ai";
 
-export type IntentType =
-    | "smalltalk"
-    | "information"
-    | "planning"
-    | "calendar_action"
-    | "explanation"
-    | "unknown";
-
-export interface IntentResult {
-    intent: IntentType;
-    confidence: number;
-    entities?: {
-        date?: string;
-        person?: string;
-        topic?: string;
-        [key: string]: string | undefined;
-    };
-    rawInput: string;
-}
+// Local definitions removed in favor of contracts
 
 const CLASSIFICATION_PROMPT = `
 You are an Intent Classifier. Your job is to analyze the user's input and categorize it into one of the following intents:

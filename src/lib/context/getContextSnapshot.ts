@@ -107,7 +107,6 @@ function getUiMode(hour: number, dayType: DayType): UiMode {
 
 export function getContextSnapshot(options: ContextOptions = {}): ContextSnapshot {
     const now = options.date || new Date();
-    const locale = options.locale || "de-DE";
 
     // Use local time for calculations (ensure we operate on the intended local time)
     // NOTE: In a real server env, 'now' might be UTC, so we might need timezone offset handling.

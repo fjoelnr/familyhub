@@ -1,16 +1,11 @@
-import { IntentResult } from '../ai/intentClassifier';
+import { IntentResult } from '../contracts/ai';
 import { ContextSnapshot } from '../contracts/context';
 import { createChatResponse } from '../ai/chatOrchestrator';
 import { CalendarSync } from '../api/calendarSync';
 import { CalendarEvent } from '../contracts/calendar';
+import { ActionResult } from '../contracts/agents';
 
-export interface ActionResult {
-    status: 'success' | 'clarification_needed' | 'confirmation_needed' | 'error';
-    summary: string;
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    payload?: any;
-    missingInfo?: string[];
-}
+// Local ActionResult removed in favor of contracts
 
 const PARSING_PROMPT = `
 You are a Calendar Intent Parser. Analyze the user's input and extract structured calendar action data.
@@ -42,6 +37,29 @@ export async function processCalendarIntent(
     userMessage: string
 ): Promise<ActionResult> {
     const calendarSync = new CalendarSync();
+
+    // 0. Handle Explicit Confirmation (Bypass LLM)
+    if (userMessage.startsWith("Confirm calendar event:")) {
+        try {
+            const json = userMessage.substring("Confirm calendar event:".length).trim();
+            const payload = JSON.parse(json);
+            const evt = payload as Partial<CalendarEvent>;
+
+            await calendarSync.createEvent(evt);
+
+            return {
+                status: 'success',
+                summary: `Scheduled "${evt.title}" for ${new Date(evt.start!).toLocaleString()}.`,
+                payload: evt
+            };
+        } catch (e) {
+            console.error("Confirmation parsing failed", e);
+            return {
+                status: 'error',
+                summary: "Failed to process confirmation."
+            };
+        }
+    }
 
     try {
         // 1. Parse details using LLM

@@ -1,26 +1,26 @@
-import React from 'react';
-import { AmbientCanvas } from '../zones/AmbientCanvas';
-import { StatusRail } from '../zones/StatusRail';
-import { FluidStage } from '../zones/FluidStage';
-import { InputDeck } from '../zones/InputDeck';
+"use client";
 
-export const HubShell: React.FC = () => {
+import StatusRail from "@/components/zones/StatusRail";
+import FluidStage from "@/components/zones/FluidStage";
+import InputDeck from "@/components/zones/InputDeck";
+
+import { useEffect } from "react";
+import { useFamilyHub } from "@/lib/contexts/FamilyHubContext";
+
+export default function HubShell() {
+    const { context } = useFamilyHub();
+
+    useEffect(() => {
+        document.body.dataset.fsMode = context.uiMode;
+    }, [context.uiMode]);
+
     return (
-        <div className="relative w-screen h-screen overflow-hidden flex flex-col">
-            {/* Zone A: Background (Layer 0) */}
-            <AmbientCanvas />
-
-            {/* Foreground Content (Layer 1) */}
-            <div className="relative z-10 flex flex-col h-full">
-                {/* Zone B: Top Persistent Rail */}
-                <StatusRail />
-
-                {/* Zone C: Main Stage (Flexible) */}
-                <FluidStage />
-
-                {/* Zone D: Bottom Input (Fixed) */}
-                <InputDeck />
-            </div>
+        <div
+            className="flex flex-col h-screen transition-colors duration-500"
+        >
+            <StatusRail />
+            <FluidStage />
+            <InputDeck />
         </div>
     );
-};
+}
