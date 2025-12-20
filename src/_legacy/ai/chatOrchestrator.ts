@@ -1,3 +1,8 @@
+/**
+ * LEGACY – inactive
+ * Replaced by n8n pipeline as of 2025-12-20
+ * Do not import in active runtime
+ */
 import { ChatOptions, ChatResponse, Message } from "@/lib/contracts/ai";
 import { getContextSnapshot } from "@/lib/context/getContextSnapshot";
 import { callOllama } from "./providers/ollama";

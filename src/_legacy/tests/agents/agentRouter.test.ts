@@ -1,19 +1,24 @@
-import { routeIntent } from '../agentRouter';
+/**
+ * LEGACY – inactive
+ * Replaced by n8n pipeline as of 2025-12-20
+ * Do not import in active runtime
+ */
+import { routeIntent } from '../../agents/agentRouter';
 import { IntentResult } from '@/lib/contracts/ai';
-import { ContextSnapshot } from '../../contracts/context';
+import { ContextSnapshot } from '@/lib/contracts/context';
 
 // Mock dependencies
 jest.mock('../../ai/chatOrchestrator', () => ({
     createChatResponse: jest.fn().mockResolvedValue({ text: "Mock Chat Response" })
 }));
 
-jest.mock('../calendarAgent', () => ({
+jest.mock('../../agents/calendarAgent', () => ({
     processCalendarIntent: jest.fn()
 }));
 
 // Import mocked functions to assert on them
 import { createChatResponse } from '../../ai/chatOrchestrator';
-import { processCalendarIntent } from '../calendarAgent';
+import { processCalendarIntent } from '../../agents/calendarAgent';
 
 describe('Agent Router', () => {
     const mockContext: ContextSnapshot = {

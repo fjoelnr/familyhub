@@ -1,0 +1,60 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "$id": "https://familyhub.local/schemas/n8n-contract-v1.json",
+    "title": "FamilyHub n8n Integration Contract v1",
+    "description": "Standardized schema for communication between FamilyHub (Brain) and n8n (Muscles).",
+    "type": "object",
+    "required": [
+        "workflow",
+        "payload",
+        "context"
+    ],
+    "properties": {
+        "workflow": {
+            "type": "string",
+            "description": "The target workflow intent. Authoritative for routing.",
+            "examples": [
+                "calendar.create",
+                "reminder.schedule"
+            ]
+        },
+        "payload": {
+            "type": "object",
+            "description": "Workflow-specific data payload.",
+            "additionalProperties": true
+        },
+        "context": {
+            "type": "object",
+            "required": [
+                "requestId",
+                "source"
+            ],
+            "properties": {
+                "requestId": {
+                    "type": "string",
+                    "format": "uuid",
+                    "description": "Unique tracing ID for the request."
+                },
+                "source": {
+                    "type": "string",
+                    "enum": [
+                        "voice",
+                        "chat",
+                        "automation",
+                        "system"
+                    ],
+                    "description": "Origin of the request."
+                },
+                "userId": {
+                    "type": "string",
+                    "description": "ID of the user triggering the action."
+                },
+                "locale": {
+                    "type": "string",
+                    "description": "IETF language tag (e.g. en-US, de-DE)."
+                }
+            }
+        }
+    },
+    "additionalProperties": false
+}

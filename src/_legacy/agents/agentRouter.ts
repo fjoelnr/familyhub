@@ -1,9 +1,14 @@
-import { IntentResult } from '../contracts/ai';
-import { ContextSnapshot } from '../contracts/context';
+/**
+ * LEGACY – inactive
+ * Replaced by n8n pipeline as of 2025-12-20
+ * Do not import in active runtime
+ */
+import { IntentResult } from '../../lib/contracts/ai';
+import { ContextSnapshot } from '../../lib/contracts/context';
 import { createChatResponse } from '../ai/chatOrchestrator';
 import { processCalendarIntent } from './calendarAgent'; // ActionResult unused in import if we rely on contract structure, but processCalendarIntent returns it.
 import { processExplanationIntent } from './explainAgent';
-import { AgentResponse } from '../contracts/agents';
+import { AgentResponse } from '../../lib/contracts/agents';
 
 // We map the agent-specific results to the contract AgentResponse
 export async function routeIntent(

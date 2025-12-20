@@ -1,12 +1,17 @@
-import { processCalendarIntent } from '../calendarAgent';
+/**
+ * LEGACY – inactive
+ * Replaced by n8n pipeline as of 2025-12-20
+ * Do not import in active runtime
+ */
+import { processCalendarIntent } from '../../agents/calendarAgent';
 import { IntentResult } from '@/lib/contracts/ai';
 import { CalendarEvent } from '@/lib/contracts/calendar';
 import { ContextSnapshot } from '@/lib/contracts/context';
-import { CalendarSync } from '../../api/calendarSync';
+import { CalendarSync } from '@/lib/api/calendarSync';
 import { createChatResponse } from '../../ai/chatOrchestrator';
 
 // Mock dependencies
-jest.mock('../../api/calendarSync');
+jest.mock('@/lib/api/calendarSync');
 jest.mock('../../ai/chatOrchestrator');
 
 const mockCalendarSync = CalendarSync as jest.MockedClass<typeof CalendarSync>;

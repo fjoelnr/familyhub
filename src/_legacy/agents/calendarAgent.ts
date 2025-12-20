@@ -1,9 +1,14 @@
-import { IntentResult } from '../contracts/ai';
-import { ContextSnapshot } from '../contracts/context';
+/**
+ * LEGACY – inactive
+ * Replaced by n8n pipeline as of 2025-12-20
+ * Do not import in active runtime
+ */
+import { IntentResult } from '../../lib/contracts/ai';
+import { ContextSnapshot } from '../../lib/contracts/context';
 import { createChatResponse } from '../ai/chatOrchestrator';
-import { CalendarSync } from '../api/calendarSync';
-import { CalendarEvent } from '../contracts/calendar';
-import { ActionResult } from '../contracts/agents';
+import { CalendarSync } from '../../lib/api/calendarSync';
+import { CalendarEvent } from '../../lib/contracts/calendar';
+import { ActionResult } from '../../lib/contracts/agents';
 
 // Local ActionResult removed in favor of contracts
 

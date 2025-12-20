@@ -1,7 +1,12 @@
-import { IntentResult } from '../contracts/ai';
-import { ContextSnapshot } from '../contracts/context';
+/**
+ * LEGACY – inactive
+ * Replaced by n8n pipeline as of 2025-12-20
+ * Do not import in active runtime
+ */
+import { IntentResult } from '../../lib/contracts/ai';
+import { ContextSnapshot } from '../../lib/contracts/context';
 import { createChatResponse } from '../ai/chatOrchestrator';
-import { AgentResponse } from '../contracts/agents';
+import { AgentResponse } from '../../lib/contracts/agents';
 
 const EXPLANATION_PERSONAS: Record<string, string> = {
     calm: "You are a gentle, patient tutor. Explain things simply and clearly, using calming language. Avoid harsh technical jargon unless necessary, and if so, explain it softly.",
