@@ -6,17 +6,23 @@ export interface ActionResult {
     missingInfo?: string[];
 }
 
-export interface AgentResponse {
+export type AgentResponse = {
     type: 'chat' | 'action_request' | 'clarification_needed' | 'error';
-    role: 'system' | 'user' | 'assistant';
-    text?: string;
+    role: 'assistant' | 'user'; // User messages also follow this for UI consistency
+    text: string;
 
-    // For action requests
+    // For actions
     actionResult?: {
-        status: string;
-        summary: string;
-        payload?: unknown;
+        type: string;
+        payload: unknown;
     };
-
     requiresConfirmation?: boolean;
-}
+
+    // Telemetry & Debug
+    meta?: {
+        source?: string;
+        requestId?: string;
+        durationMs?: number;
+        [key: string]: unknown;
+    };
+};

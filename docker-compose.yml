@@ -1,0 +1,12 @@
+services:
+  familyhub:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: familyhub
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=production
+      - N8N_WEBHOOK_URL=http://192.168.178.20:5678/webhook/familyhub/chat
+    restart: unless-stopped

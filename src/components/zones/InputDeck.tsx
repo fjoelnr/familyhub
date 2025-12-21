@@ -6,24 +6,26 @@ import { useAgentRuntime } from "@/lib/contexts/AgentRuntimeContext";
 
 export default function InputDeck() {
     const [text, setText] = useState("");
-    const { pushResponse, setBusy, uiState } = useAgentRuntime();
+    const { pushResponse, setActivityStatus, uiState, state } = useAgentRuntime();
     const inputRef = useRef<HTMLInputElement>(null);
 
-    // Auto-focus when entering interaction mode
+    // Lock input when sending or waiting
+    const isLocked = state.activityStatus === 'sending' || state.activityStatus === 'waiting_for_response';
+
+    // Auto-focus when entering interaction mode (and not locked)
     useEffect(() => {
-        if (uiState === 'chat' && inputRef.current) {
+        if (uiState === 'chat' && !isLocked && inputRef.current) {
             inputRef.current.focus();
         }
-    }, [uiState]);
+    }, [uiState, isLocked]);
 
     // In confirmation mode, we focus entirely on the action decision.
-    // The input deck should be hidden to reduce noise.
     if (uiState === "awaiting_action") {
         return null;
     }
 
     async function submit() {
-        if (!text.trim()) return;
+        if (!text.trim() || isLocked) return;
 
         // Immediately show user message
         const userText = text;
@@ -35,10 +37,20 @@ export default function InputDeck() {
             text: userText,
         });
 
-        setBusy(true);
+        // Update Status: sending -> waiting
+        setActivityStatus('sending');
+
         try {
+            // Simulate 'sending' -> 'waiting' transition if needed, 
+            // but sendChatMessage is one async call. 
+            // Let's set 'waiting_for_response' immediately before call or just 'sending'.
+            // Requirements say: "thinking" / activity indicator.
+            // Let's use 'waiting_for_response' as the main busy state.
+            setActivityStatus('waiting_for_response');
+
             const response = await sendChatMessage(userText);
             pushResponse(response);
+            // pushResponse resets status to idle/error automatically
         } catch (e) {
             console.error(e);
             pushResponse({
@@ -46,21 +58,25 @@ export default function InputDeck() {
                 role: "assistant",
                 text: "Failed to contact FamilyHub backend.",
             });
+            // Manual reset if pushResponse didn't handle it (it does handle error type)
+            setActivityStatus('error');
         } finally {
-            setBusy(false);
-            // Re-focus after sending
-            setTimeout(() => inputRef.current?.focus(), 10);
+            // Re-focus after sending if not busy
+            setTimeout(() => {
+                if (inputRef.current) inputRef.current.focus();
+            }, 10);
         }
     }
 
     return (
-        <div className="flex gap-2 p-3 border-t bg-slate-900 border-slate-800">
+        <div className={`flex gap-2 p-3 border-t bg-slate-900 border-slate-800 transition-opacity duration-300 ${isLocked ? 'opacity-50 pointer-events-none' : ''}`}>
             <input
                 ref={inputRef}
                 value={text}
                 onChange={(e) => setText(e.target.value)}
                 onKeyDown={(e) => e.key === "Enter" && submit()}
-                className="flex-1 border border-slate-700 bg-slate-800 px-3 py-2 rounded-lg text-slate-100 placeholder:text-slate-500 focus:outline-none focus:ring-1 focus:ring-blue-500 transition-all"
+                disabled={isLocked}
+                className="flex-1 border border-slate-700 bg-slate-800 px-3 py-2 rounded-lg text-slate-100 placeholder:text-slate-500 focus:outline-none focus:ring-1 focus:ring-blue-500 transition-all disabled:cursor-not-allowed"
                 placeholder={uiState === 'idle' ? "Wake up FamilyHub..." : "Ask something..."}
             />
             <button

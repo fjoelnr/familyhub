@@ -1,11 +1,9 @@
 "use client";
 
-import { useEffect, useState } from "react";
 import { useAgentRuntime } from "@/lib/contexts/AgentRuntimeContext";
 import { useFamilyHub } from "@/lib/contexts/FamilyHubContext";
 import CalendarWidget from "@/components/widgets/CalendarWidget";
 import { AgentResponse } from "@/lib/contracts/agents";
-import { CalendarEvent } from "@/lib/contracts/calendar";
 
 import AmbientCanvas from "@/components/zones/AmbientCanvas";
 
@@ -157,10 +155,19 @@ export default function FluidStage() {
                     <div
                         className={`rounded-2xl px-5 py-3 shadow-sm ${r.role === "user"
                             ? "bg-blue-600 text-white rounded-br-none"
-                            : "bg-slate-700 border border-slate-600 text-slate-100 rounded-bl-none"
+                            : r.type === 'error'
+                                ? "bg-red-900/50 border border-red-500 text-red-200 rounded-bl-none" // Error Style
+                                : "bg-slate-700 border border-slate-600 text-slate-100 rounded-bl-none" // Normal Agent Style
                             }`}
                     >
                         <div className="whitespace-pre-wrap leading-relaxed">{r.text}</div>
+
+                        {/* Telemetry/Meta Info (optional debug or subtle display) */}
+                        {r.meta && r.meta.durationMs && (
+                            <div className={`text-[10px] mt-1 opacity-50 ${r.role === 'user' ? 'text-blue-200' : 'text-slate-400'}`}>
+                                {r.meta.durationMs}ms
+                            </div>
+                        )}
 
                         {/* Render Calendar Events inline during chat if provided */}
                         {r.actionResult &&
@@ -178,6 +185,21 @@ export default function FluidStage() {
                     </div>
                 </div>
             ))}
+
+            {/* Thinking Indicator */}
+            {(state.activityStatus === 'sending' || state.activityStatus === 'waiting_for_response') && (
+                <div className="self-start items-start mr-auto max-w-[80%] animate-pulse">
+                    <div className="bg-slate-800 border border-slate-700 text-slate-400 rounded-2xl rounded-bl-none px-5 py-3 shadow-sm flex items-center gap-2">
+                        <div className="flex gap-1">
+                            <span className="w-1.5 h-1.5 bg-slate-400 rounded-full animate-bounce [animation-delay:-0.3s]"></span>
+                            <span className="w-1.5 h-1.5 bg-slate-400 rounded-full animate-bounce [animation-delay:-0.15s]"></span>
+                            <span className="w-1.5 h-1.5 bg-slate-400 rounded-full animate-bounce"></span>
+                        </div>
+                        <span className="text-sm font-medium">Thinking...</span>
+                    </div>
+                </div>
+            )}
+
             {/* Spacer for scrolling */}
             <div className="h-4" />
         </div>

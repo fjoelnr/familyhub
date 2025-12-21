@@ -4,16 +4,18 @@ import { createContext, useContext, useState } from "react";
 import { AgentResponse } from "@/lib/contracts/agents";
 import { useUiInteraction, UiInteractionState } from "@/lib/hooks/useUiInteraction";
 
+export type ActivityStatus = 'idle' | 'sending' | 'waiting_for_response' | 'error';
+
 type RuntimeState = {
     responses: AgentResponse[];
-    isBusy: boolean;
+    activityStatus: ActivityStatus;
 };
 
 const AgentRuntimeContext = createContext<{
     state: RuntimeState;
     uiState: UiInteractionState;
     pushResponse: (r: AgentResponse) => void;
-    setBusy: (b: boolean) => void;
+    setActivityStatus: (s: ActivityStatus) => void;
     resetToIdle: () => void;
 } | null>(null);
 
@@ -24,7 +26,7 @@ export function AgentRuntimeProvider({
 }) {
     const [state, setState] = useState<RuntimeState>({
         responses: [],
-        isBusy: false,
+        activityStatus: 'idle',
     });
 
     const {
@@ -44,6 +46,7 @@ export function AgentRuntimeProvider({
                     setState((s) => ({
                         ...s,
                         responses: [...s.responses, r],
+                        activityStatus: r.type === 'error' ? 'error' : 'idle' // Reset activity on response
                     }));
 
                     // State Transition Logic
@@ -60,10 +63,10 @@ export function AgentRuntimeProvider({
                         }
                     }
                 },
-                setBusy: (b) =>
+                setActivityStatus: (status) =>
                     setState((s) => ({
                         ...s,
-                        isBusy: b,
+                        activityStatus: status,
                     })),
                 resetToIdle,
             }}
