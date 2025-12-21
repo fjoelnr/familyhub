@@ -1,0 +1,199 @@
+{
+    "name": "WF-103 LLM",
+    "nodes": [
+        {
+            "parameters": {
+                "httpMethod": "POST",
+                "path": "familyhub/chat-llm",
+                "responseMode": "responseNode",
+                "options": {}
+            },
+            "id": "webhook-node",
+            "name": "Webhook",
+            "type": "n8n-nodes-base.webhook",
+            "typeVersion": 1,
+            "position": [
+                380,
+                300
+            ]
+        },
+        {
+            "parameters": {
+                "jsCode": "function uuidv4() {\n  return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {\n    var r = Math.random() * 16 | 0, v = c == 'x' ? r : (r & 0x3 | 0x8);\n    return v.toString(16);\n  });\n}\n\nconst input = items[0].json.body;\nconst reqId = input.requestId || uuidv4();\nconst payload = input.payload;\nconst context = input.context || {};\n\nif (!payload || !payload.message || typeof payload.message !== 'string' || payload.message.trim() === '') {\n  return [{\n    json: {\n      isValid: false,\n      httpStatus: 400,\n      response: {\n        status: \"error\",\n        errorType: \"invalid_payload\",\n        reply: \"Invalid message\",\n        requestId: reqId\n      }\n    }\n  }];\n}\n\nreturn [{\n  json: {\n    isValid: true,\n    requestId: reqId,\n    context: context,\n    userMessage: payload.message\n  }\n}];"
+            },
+            "id": "validate-node",
+            "name": "Validate & Prep",
+            "type": "n8n-nodes-base.code",
+            "typeVersion": 2,
+            "position": [
+                600,
+                300
+            ]
+        },
+        {
+            "parameters": {
+                "conditions": {
+                    "boolean": [
+                        {
+                            "value1": "={{ $json.isValid }}",
+                            "value2": true
+                        }
+                    ]
+                }
+            },
+            "id": "if-valid-node",
+            "name": "Is Valid?",
+            "type": "n8n-nodes-base.if",
+            "typeVersion": 1,
+            "position": [
+                820,
+                300
+            ]
+        },
+        {
+            "parameters": {
+                "method": "POST",
+                "url": "http://192.168.178.40:11434/api/chat",
+                "sendBody": true,
+                "contentType": "json",
+                "bodyParameters": {
+                    "parameters": [
+                        {
+                            "name": "model",
+                            "value": "llama3:latest"
+                        },
+                        {
+                            "name": "messages",
+                            "value": "={{ [ { \"role\": \"system\", \"content\": \"You are a helpful assistant.\" }, { \"role\": \"user\", \"content\": $json.userMessage } ] }}"
+                        },
+                        {
+                            "name": "stream",
+                            "value": false
+                        }
+                    ]
+                },
+                "options": {}
+            },
+            "id": "ollama-request-node",
+            "name": "Ollama Request",
+            "type": "n8n-nodes-base.httpRequest",
+            "typeVersion": 4.1,
+            "position": [
+                1100,
+                200
+            ],
+            "onError": "continueErrorOutput"
+        },
+        {
+            "parameters": {
+                "jsCode": "const prev = $('Validate & Prep').first().json;\nconst reqId = prev.requestId;\nconst context = prev.context;\n\n// Handle HTTP Request Failure from onError: continueErrorOutput\nif (items[0].error) {\n  return [{\n    json: {\n      httpStatus: 502,\n      response: {\n        status: \"error\",\n        errorType: \"ollama_error\",\n        reply: \"LLM backend error\",\n        requestId: reqId,\n        meta: {\n             handledBy: \"WF-103\",\n             errorType: \"ollama_error\"\n        }\n      }\n    }\n  }];\n}\n\nconst ollama = items[0].json;\nlet reply = \"No reply from model.\";\n\nif (ollama.message && ollama.message.content) {\n  reply = ollama.message.content;\n}\n\nreturn [{\n  json: {\n    httpStatus: 200,\n    response: {\n      status: \"ok\",\n      reply: reply,\n      requestId: reqId,\n      meta: {\n        handledBy: \"WF-103\",\n        model: \"llama3:latest\",\n        uiMode: context.uiMode || null,\n        dayPhase: context.dayPhase || null,\n        timestamp: new Date().toISOString()\n      }\n    }\n  }\n}];"
+            },
+            "id": "parse-response-node",
+            "name": "Parse Response",
+            "type": "n8n-nodes-base.code",
+            "typeVersion": 2,
+            "position": [
+                1320,
+                200
+            ]
+        },
+        {
+            "parameters": {
+                "respondWith": "json",
+                "responseBody": "={{ $json.response }}",
+                "options": {
+                    "responseCode": "={{ $json.httpStatus }}"
+                }
+            },
+            "id": "respond-success-node",
+            "name": "Respond Success",
+            "type": "n8n-nodes-base.respondToWebhook",
+            "typeVersion": 1,
+            "position": [
+                1540,
+                200
+            ]
+        },
+        {
+            "parameters": {
+                "respondWith": "json",
+                "responseBody": "={{ $json.response }}",
+                "options": {
+                    "responseCode": "={{ $json.httpStatus }}"
+                }
+            },
+            "id": "respond-error-node",
+            "name": "Respond Error",
+            "type": "n8n-nodes-base.respondToWebhook",
+            "typeVersion": 1,
+            "position": [
+                1100,
+                500
+            ]
+        }
+    ],
+    "connections": {
+        "Webhook": {
+            "main": [
+                [
+                    {
+                        "node": "Validate & Prep",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Validate & Prep": {
+            "main": [
+                [
+                    {
+                        "node": "Is Valid?",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Is Valid?": {
+            "main": [
+                [
+                    {
+                        "node": "Ollama Request",
+                        "type": "main",
+                        "index": 0
+                    }
+                ],
+                [
+                    {
+                        "node": "Respond Error",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Ollama Request": {
+            "main": [
+                [
+                    {
+                        "node": "Parse Response",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Parse Response": {
+            "main": [
+                [
+                    {
+                        "node": "Respond Success",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        }
+    }
+}
