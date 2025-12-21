@@ -1,110 +1,116 @@
 import { NextResponse } from "next/server";
+import crypto from "crypto";
+
+const N8N_TIMEOUT_MS = 15_000;
 
 export async function POST(req: Request) {
     const startTime = Date.now();
     const requestId = crypto.randomUUID();
 
+    const buildMeta = (extra: Record<string, unknown> = {}) => ({
+        source: "FamilyHub",
+        requestId,
+        durationMs: Date.now() - startTime,
+        ...extra
+    });
+
     try {
-        const { message } = await req.json();
+        const body = await req.json();
+        const message = body?.message;
 
         if (!message || typeof message !== "string") {
             return NextResponse.json(
                 {
                     type: "error",
-                    text: "Invalid message payload",
-                    meta: {
-                        source: "FamilyHub",
-                        requestId,
-                        durationMs: Date.now() - startTime
-                    }
+                    role: "assistant",
+                    text: "Invalid message payload.",
+                    meta: buildMeta()
                 },
                 { status: 400 }
             );
         }
 
-        // 1. Construct n8n Payload
-        const n8nPayload = {
-            workflow: "chat_hello",
-            requestId,
-            payload: {
-                message: message
-            }
-        };
-
-        // 2. Forward to n8n with Timeout
         const n8nUrl = process.env.N8N_WEBHOOK_URL;
         if (!n8nUrl) {
-            console.error(`[${requestId}] Configuration Error: N8N_WEBHOOK_URL is missing`);
+            console.error(`[${requestId}] N8N_WEBHOOK_URL missing`);
             return NextResponse.json(
                 {
                     type: "error",
                     role: "assistant",
-                    text: "Configuration error: N8N_WEBHOOK_URL missing.",
-                    meta: {
-                        source: "FamilyHub",
-                        requestId,
-                        durationMs: Date.now() - startTime
-                    }
+                    text: "Configuration error: N8N_WEBHOOK_URL is missing.",
+                    meta: buildMeta()
                 },
                 { status: 500 }
             );
         }
 
-        const controller = new AbortController();
-        const timeoutId = setTimeout(() => controller.abort(), 15000); // 15s Timeout
+        const n8nPayload = {
+            workflow: "chat_hello",
+            requestId,
+            payload: { message }
+        };
 
-        console.log(`[${requestId}] Forwarding to n8n: ${n8nUrl}`, n8nPayload);
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), N8N_TIMEOUT_MS);
+
+        console.log(`[${requestId}] → n8n`, n8nPayload);
 
         try {
-            const n8nResponse = await fetch(n8nUrl, {
+            const response = await fetch(n8nUrl, {
                 method: "POST",
-                headers: {
-                    "Content-Type": "application/json"
-                },
+                headers: { "Content-Type": "application/json" },
                 body: JSON.stringify(n8nPayload),
                 signal: controller.signal
             });
+
             clearTimeout(timeoutId);
 
-            if (!n8nResponse.ok) {
-                console.error(`[${requestId}] n8n Error: ${n8nResponse.status} ${n8nResponse.statusText}`);
+            if (!response.ok) {
+                console.error(
+                    `[${requestId}] n8n responded with ${response.status}`
+                );
+
                 return NextResponse.json(
                     {
                         type: "error",
                         role: "assistant",
-                        text: `n8n Webhook Error: ${n8nResponse.status}`,
-                        meta: {
+                        text: `n8n Webhook Error (${response.status})`,
+                        meta: buildMeta({
                             source: "n8n",
-                            workflow: "chat_hello",
-                            requestId,
-                            durationMs: Date.now() - startTime
-                        }
+                            workflow: "chat_hello"
+                        })
                     },
                     { status: 502 }
                 );
             }
 
-            // 3. Parse n8n Response
-            const data = await n8nResponse.json();
-            const replyText = data.reply || "No reply received from n8n.";
+            const data = await response.json();
+            const replyText =
+                typeof data?.reply === "string"
+                    ? data.reply
+                    : "No reply received from n8n.";
 
-            // 4. Return AgentResponse
             return NextResponse.json({
                 type: "chat",
                 role: "assistant",
                 text: replyText,
-                meta: {
+                meta: buildMeta({
                     source: "n8n",
-                    workflow: "chat_hello",
-                    requestId,
-                    durationMs: Date.now() - startTime
-                }
+                    workflow: "chat_hello"
+                })
             });
-
-        } catch (fetchError: unknown) {
+        } catch (err: unknown) {
             clearTimeout(timeoutId);
-            const isTimeout = (fetchError as { name?: string })?.name === 'AbortError';
-            console.error(`[${requestId}] API /chat error (Timeout: ${isTimeout})`, fetchError);
+
+            const isTimeout =
+                typeof err === "object" &&
+                err !== null &&
+                (err as { name?: string }).name === "AbortError";
+
+            console.error(
+                `[${requestId}] n8n communication error (timeout=${isTimeout})`,
+                err
+            );
 
             return NextResponse.json(
                 {
@@ -113,29 +119,23 @@ export async function POST(req: Request) {
                     text: isTimeout
                         ? "The response timed out. Please try again."
                         : "Internal server error connecting to n8n.",
-                    meta: {
+                    meta: buildMeta({
                         source: "n8n",
-                        requestId,
-                        durationMs: Date.now() - startTime,
                         errorType: isTimeout ? "timeout" : "network_error"
-                    }
+                    })
                 },
                 { status: isTimeout ? 504 : 500 }
             );
         }
-
     } catch (err) {
-        console.error(`[${requestId}] API /chat critical error`, err);
+        console.error(`[${requestId}] /api/chat critical failure`, err);
+
         return NextResponse.json(
             {
                 type: "error",
                 role: "assistant",
                 text: "Internal system error.",
-                meta: {
-                    source: "FamilyHub",
-                    requestId,
-                    durationMs: Date.now() - startTime
-                }
+                meta: buildMeta()
             },
             { status: 500 }
         );

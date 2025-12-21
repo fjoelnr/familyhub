@@ -84,3 +84,9 @@ Run unit tests with:
 ```bash
 npm test
 ```
+
+## Deployment (Target Platform)
+
+```bash
+git pull
+docker compose up -d --build
