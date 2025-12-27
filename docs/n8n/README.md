@@ -9,10 +9,34 @@ This directory contains the n8n workflow definitions for the FamilyHub chat exte
 - **Purpose**: Debugging and Observability. Echos the input message with metadata.
 - **Endpoint**: `POST /webhook/familyhub/chat-echo`
 
-### 2. WF-103: LLM Clean Chat (Ollama)
-- **File**: `WF_103_CHAT_LLM.json`
-- **Purpose**: LLM interaction via Ollama with specific personas.
-- **Endpoint**: `POST /webhook/familyhub/chat-llm`
+### 3. WF-201B: CalDAV Reader (CURL) [REFERENCE]
+- **File**: `WF_201B_CALENDAR_READ_CURL.json`
+- **Purpose**: Reference implementation for reading Baikal CalDAV using system curl.
+- **Endpoint**: `POST /webhook/familyhub/calendar-read`
+- **Status**: **ACTIVE / REFERENCE**
+
+### [DEPRECATED] WF-201: CalDAV Reader (Node)
+- **File**: `WF_201_CALENDAR_READ.json`
+- **Purpose**: Historical attempt using native nodes. Fails due to Digest Auth constraints.
+- **Status**: **DEPRECATED**
+
+### 1. WF-102: Echo + Metadata
+
+## Configuration & Prerequisites
+
+To successfully run these workflows, your n8n instance must be configured with the following environment variables:
+
+### 1. Credentials (Environment Variables)
+WF-201B uses `curl` with environment variables for security. You must set these in your n8n environment (e.g., `/etc/environment`, systemd service file, or `.env`):
+- `BAIKAL_USER`: Your Baikal username.
+- `BAIKAL_PASSWORD`: Your Baikal password.
+
+### 2. Allowed Nodes
+WF-201B requires the **"Execute Command"** node. This is a **Core Node** (built-in), not a community node.
+If you see a **'?'** icon, this node is disabled in your configuration.
+- Check for `NODES_EXCLUDE` in your environment.
+- Ensure it does **not** contain `n8n-nodes-base.executeCommand`.
+- If you enabled `EXECUTE_COMMAND_DISABLED=true` (legacy env var), remove it.
 
 ## Import Steps
 
@@ -23,6 +47,18 @@ This directory contains the n8n workflow definitions for the FamilyHub chat exte
 5.  **Save** and **Activate** the workflow.
 
 ## Usage & Curl Examples
+
+### CalDAV Read (WF-201B) [REFERENCE]
+
+**Linux/Mac:**
+```bash
+curl -X POST http://192.168.178.20:5678/webhook/familyhub/calendar-read
+```
+
+**Windows (PowerShell/CMD):**
+```cmd
+curl.exe -X POST "http://192.168.178.20:5678/webhook/familyhub/calendar-read"
+```
 
 ### Echo (WF-102)
 

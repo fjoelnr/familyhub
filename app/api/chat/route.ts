@@ -30,8 +30,10 @@ export async function POST(req: Request) {
             );
         }
 
-        const n8nUrl = process.env.N8N_WEBHOOK_URL;
-        if (!n8nUrl) {
+        const n8nChatUrl = process.env.N8N_WEBHOOK_URL;
+        const n8nCalendarUrl = process.env.N8N_CALENDAR_READ_GOOGLE_URL;
+
+        if (!n8nChatUrl) {
             console.error(`[${requestId}] N8N_WEBHOOK_URL missing`);
             return NextResponse.json(
                 {
@@ -44,10 +46,39 @@ export async function POST(req: Request) {
             );
         }
 
+        let targetUrl = n8nChatUrl;
+        let workflowId = "chat_hello";
+        let workflowPayload: Record<string, unknown> = { message };
+
+        // Keyword Routing (Phase H)
+        const lowerMsg = message.toLowerCase();
+        if (
+            lowerMsg.includes("kalender") ||
+            lowerMsg.includes("termin") ||
+            lowerMsg.includes("was steht") ||
+            lowerMsg.includes("heute")
+        ) {
+            if (!n8nCalendarUrl) {
+                console.warn(`[${requestId}] Calendar intent detected but N8N_CALENDAR_READ_GOOGLE_URL missing.`);
+                // Fallback or Error? 
+                // Decision: Proceed with chat default but log warning, OR fail specific intent?
+                // Given the user wants "Explicit Config", missing config is an error state for this intent.
+                // However, "Self-Correction": If missing, maybe better to use chat default which might reply "I don't know".
+                // But for this task, I will assume it's set as I just appended it. I will fall back to chat to define behavior safely.
+                // Actually, let's keep it robust: Use chat workflow if calendar config is missing.
+            } else {
+                targetUrl = n8nCalendarUrl;
+                workflowId = "calendar_read_google";
+                workflowPayload = {
+                    range: "today"
+                };
+            }
+        }
+
         const n8nPayload = {
-            workflow: "chat_hello",
+            workflow: workflowId,
             requestId,
-            payload: { message }
+            payload: workflowPayload
         };
 
         const controller = new AbortController();
@@ -56,7 +87,7 @@ export async function POST(req: Request) {
         console.log(`[${requestId}] → n8n`, n8nPayload);
 
         try {
-            const response = await fetch(n8nUrl, {
+            const response = await fetch(targetUrl, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify(n8nPayload),
@@ -77,7 +108,7 @@ export async function POST(req: Request) {
                         text: `n8n Webhook Error (${response.status})`,
                         meta: buildMeta({
                             source: "n8n",
-                            workflow: "chat_hello"
+                            workflow: workflowId
                         })
                     },
                     { status: 502 }
@@ -90,13 +121,23 @@ export async function POST(req: Request) {
                     ? data.reply
                     : "No reply received from n8n.";
 
+            // Map Action Result if events are present
+            let actionResult = undefined;
+            if (data?.events && Array.isArray(data.events)) {
+                actionResult = {
+                    type: "calendar_events",
+                    payload: data.events
+                };
+            }
+
             return NextResponse.json({
                 type: "chat",
                 role: "assistant",
                 text: replyText,
+                actionResult,
                 meta: buildMeta({
                     source: "n8n",
-                    workflow: "chat_hello"
+                    workflow: workflowId
                 })
             });
         } catch (err: unknown) {

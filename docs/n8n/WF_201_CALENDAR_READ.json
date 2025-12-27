@@ -1,0 +1,137 @@
+{
+    "name": "WF-201 Read-only Calendar",
+    "nodes": [
+        {
+            "parameters": {
+                "httpMethod": "POST",
+                "path": "familyhub/calendar-read",
+                "responseMode": "responseNode",
+                "options": {}
+            },
+            "id": "be318987-1234-4567-8901-234567890abc",
+            "name": "Webhook",
+            "type": "n8n-nodes-base.webhook",
+            "typeVersion": 1,
+            "position": [
+                100,
+                300
+            ]
+        },
+        {
+            "parameters": {
+                "values": {
+                    "string": [
+                        {
+                            "name": "rangeStart",
+                            "value": "={{ $now.setZone('utc').startOf('day').toFormat('yyyyMMdd') }}T000000Z"
+                        },
+                        {
+                            "name": "rangeEnd",
+                            "value": "={{ $now.setZone('utc').endOf('day').toFormat('yyyyMMdd') }}T235959Z"
+                        }
+                    ]
+                },
+                "options": {}
+            },
+            "id": "f51a2254-5678-9012-3456-789012345678",
+            "name": "Calculate Range",
+            "type": "n8n-nodes-base.set",
+            "typeVersion": 2,
+            "position": [
+                300,
+                300
+            ]
+        },
+        {
+            "parameters": {
+                "method": "={{ 'REPORT' }}",
+                "url": "http://192.168.178.99/dav.php/calendars/fjoelnir/valur/",
+                "authentication": "basicAuth",
+                "sendHeaders": true,
+                "headerParameters": {
+                    "parameters": [
+                        {
+                            "name": "Content-Type",
+                            "value": "application/xml; charset=utf-8"
+                        },
+                        {
+                            "name": "Depth",
+                            "value": "1"
+                        }
+                    ]
+                },
+                "sendBody": true,
+                "contentType": "raw",
+                "rawContentType": "application/xml; charset=utf-8",
+                "body": "={{ '<c:calendar-query xmlns:d=\"DAV:\" xmlns:c=\"urn:ietf:params:xml:ns:caldav\">\\n    <d:prop>\\n        <d:getetag />\\n        <c:calendar-data />\\n    </d:prop>\\n    <c:filter>\\n        <c:comp-filter name=\"VCALENDAR\">\\n            <c:comp-filter name=\"VEVENT\">\\n                <c:time-range start=\"' + $json.rangeStart + '\" end=\"' + $json.rangeEnd + '\"/>\\n            </c:comp-filter>\\n        </c:comp-filter>\\n    </c:filter>\\n</c:calendar-query>' }}",
+                "options": {
+                    "responseFormat": "string"
+                }
+            },
+            "id": "c71e2254-5678-9012-3456-789012345def",
+            "name": "CalDAV Query",
+            "type": "n8n-nodes-base.httpRequest",
+            "typeVersion": 4.1,
+            "position": [
+                500,
+                300
+            ],
+            "credentials": {
+                "httpBasicAuth": {
+                    "id": "baikal_basic",
+                    "name": "baikal_basic"
+                }
+            }
+        },
+        {
+            "parameters": {
+                "respondWith": "json",
+                "responseBody": "={{ {\n  \"status\": \"ok\",\n  \"raw\": $json.data,\n  \"meta\": {\n    \"handledBy\": \"WF-201\",\n    \"method\": \"REPORT (Basic Auth)\"\n  }\n} }}",
+                "options": {}
+            },
+            "id": "d82f3365-9012-3456-7890-123456789012",
+            "name": "Respond to Webhook",
+            "type": "n8n-nodes-base.respondToWebhook",
+            "typeVersion": 1,
+            "position": [
+                700,
+                300
+            ]
+        }
+    ],
+    "connections": {
+        "Webhook": {
+            "main": [
+                [
+                    {
+                        "node": "Calculate Range",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Calculate Range": {
+            "main": [
+                [
+                    {
+                        "node": "CalDAV Query",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "CalDAV Query": {
+            "main": [
+                [
+                    {
+                        "node": "Respond to Webhook",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        }
+    }
+}

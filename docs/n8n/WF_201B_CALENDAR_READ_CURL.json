@@ -1,0 +1,109 @@
+{
+    "name": "WF-201B Read-only Calendar (Curl)",
+    "nodes": [
+        {
+            "parameters": {
+                "httpMethod": "POST",
+                "path": "familyhub/calendar-read",
+                "responseMode": "responseNode",
+                "options": {}
+            },
+            "id": "6732f91a-b321-4a12-8901-234567890abc",
+            "name": "Webhook",
+            "type": "n8n-nodes-base.webhook",
+            "typeVersion": 1,
+            "position": [
+                100,
+                300
+            ]
+        },
+        {
+            "parameters": {
+                "values": {
+                    "string": [
+                        {
+                            "name": "rangeStart",
+                            "value": "={{ $now.setZone('utc').startOf('day').toFormat('yyyyMMdd') }}T000000Z"
+                        },
+                        {
+                            "name": "rangeEnd",
+                            "value": "={{ $now.setZone('utc').endOf('day').toFormat('yyyyMMdd') }}T235959Z"
+                        }
+                    ]
+                },
+                "options": {}
+            },
+            "id": "a1b2c3d4-e5f6-4789-8012-345678901234",
+            "name": "Calculate Range",
+            "type": "n8n-nodes-base.set",
+            "typeVersion": 2,
+            "position": [
+                300,
+                300
+            ]
+        },
+        {
+            "parameters": {
+                "command": "={{ 'echo \\'<c:calendar-query xmlns:d=\"DAV:\" xmlns:c=\"urn:ietf:params:xml:ns:caldav\">\\n    <d:prop>\\n        <d:getetag />\\n        <c:calendar-data />\\n    </d:prop>\\n    <c:filter>\\n        <c:comp-filter name=\"VCALENDAR\">\\n            <c:comp-filter name=\"VEVENT\">\\n                <c:time-range start=\"' + $json.rangeStart + '\" end=\"' + $json.rangeEnd + '\"/>\\n            </c:comp-filter>\\n        </c:comp-filter>\\n    </c:filter>\\n</c:calendar-query>\\' > /tmp/n8n_caldav_query_' + $executionId + '.xml && curl --digest --user \"' + $env.BAIKAL_USER + ':' + $env.BAIKAL_PASSWORD + '\" --header \"Content-Type: application/xml; charset=utf-8\" --header \"Depth: 1\" --data-binary @/tmp/n8n_caldav_query_' + $executionId + '.xml --silent --show-error --fail-with-body http://192.168.178.99/dav.php/calendars/fjoelnir/valur/ && rm /tmp/n8n_caldav_query_' + $executionId + '.xml' }}"
+            },
+            "id": "e5f6a1b2-c3d4-4789-8012-345678905678",
+            "name": "Execute Curl",
+            "type": "n8n-nodes-base.executeCommand",
+            "typeVersion": 1,
+            "position": [
+                500,
+                300
+            ]
+        },
+        {
+            "parameters": {
+                "respondWith": "json",
+                "responseBody": "={{ {\n  \"status\": $json.exitCode === 0 ? \"ok\" : \"error\",\n  \"rawXml\": $json.stdout,\n  \"httpCode\": \"(Check stdout provided by curl)\",\n  \"meta\": {\n    \"handledBy\": \"WF-201B (Curl)\",\n    \"method\": \"REPORT (Digest)\"\n  }\n} }}",
+                "options": {}
+            },
+            "id": "90123456-7890-4123-bcde-f01234567890",
+            "name": "Respond to Webhook",
+            "type": "n8n-nodes-base.respondToWebhook",
+            "typeVersion": 1,
+            "position": [
+                700,
+                300
+            ]
+        }
+    ],
+    "connections": {
+        "Webhook": {
+            "main": [
+                [
+                    {
+                        "node": "Calculate Range",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Calculate Range": {
+            "main": [
+                [
+                    {
+                        "node": "Execute Curl",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Execute Curl": {
+            "main": [
+                [
+                    {
+                        "node": "Respond to Webhook",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        }
+    }
+}

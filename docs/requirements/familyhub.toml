@@ -214,6 +214,72 @@ title = "Workflow Verification"
 description = "Each n8n workflow must be verifiable via test payloads."
 status = "required"
 
+# =========================
+# Phase E – Observability
+# =========================
+
+[phase.E]
+id = "PH-E"
+title = "Observability & MCP Integration"
+status = "planned"
+scope = "Read-only inspection and diagnostics"
+
+[FR-E-001]
+id = "FR-E-001"
+title = "MCP-based n8n Observability"
+description = """
+FamilyHub shall support a read-only MCP integration to inspect n8n workflows,
+executions, inputs, outputs, and error states for debugging and analysis.
+"""
+priority = "high"
+status = "planned"
+constraints = [
+  "Read-only access",
+  "No mutation of workflows",
+  "No execution triggering"
+]
+
+[FR-E-002]
+id = "FR-E-002"
+title = "Execution-Level Diagnostics"
+description = """
+The system shall allow inspection of individual n8n workflow executions,
+including requestId correlation, timing, success/error state, and payload flow.
+"""
+priority = "high"
+status = "planned"
+
+[FR-E-003]
+id = "FR-E-003"
+title = "Request Correlation"
+description = """
+All observability views must correlate FamilyHub requestId with n8n executionId
+to enable deterministic debugging across system boundaries.
+"""
+priority = "high"
+status = "planned"
+
+[NFR-E-001]
+id = "NFR-E-001"
+title = "Non-Intrusive Observability"
+description = """
+Observability tooling must not affect runtime behavior, performance,
+or stability of FamilyHub or n8n workflows.
+"""
+priority = "critical"
+status = "planned"
+
+[SR-E-001]
+id = "SR-E-001"
+title = "Strict Separation of Control"
+description = """
+MCP integration must never allow write, update, delete, or trigger operations
+against n8n. Observability is strictly passive.
+"""
+priority = "critical"
+status = "planned"
+
+
 # =========================================================
 # Notes
 # =========================================================
@@ -221,4 +287,3 @@ status = "required"
 [notes]
 living_document = true
 change_policy = "Extend, never silently remove requirements"
-s
