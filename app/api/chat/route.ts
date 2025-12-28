@@ -139,48 +139,49 @@ export async function POST(req: Request) {
                 role: "assistant",
                 text: replyText,
                 actionResult,
-                meta: build                    workflow: workflowId
-            })
-        });
-    } catch (err: unknown) {
-        clearTimeout(timeoutId);
+                meta: buildMeta({
+                    workflow: workflowId
+                })
+            });
+        } catch (err: unknown) {
+            clearTimeout(timeoutId);
 
-        const isTimeout =
-            typeof err === "object" &&
-            err !== null &&
-            (err as { name?: string }).name === "AbortError";
+            const isTimeout =
+                typeof err === "object" &&
+                err !== null &&
+                (err as { name?: string }).name === "AbortError";
 
-        console.error(
-            `[${requestId}] n8n communication error (timeout=${isTimeout})`,
-            err
-        );
+            console.error(
+                `[${requestId}] n8n communication error (timeout=${isTimeout})`,
+                err
+            );
+
+            return NextResponse.json(
+                {
+                    type: "error",
+                    role: "assistant",
+                    text: isTimeout
+                        ? "The response timed out. Please try again."
+                        : "Internal server error connecting to n8n.",
+                    meta: buildMeta({
+                        source: "n8n",
+                        errorType: isTimeout ? "timeout" : "network_error"
+                    })
+                },
+                { status: isTimeout ? 504 : 500 }
+            );
+        }
+    } catch (err) {
+        console.error(`[${requestId}] /api/chat critical failure`, err);
 
         return NextResponse.json(
             {
                 type: "error",
                 role: "assistant",
-                text: isTimeout
-                    ? "The response timed out. Please try again."
-                    : "Internal server error connecting to n8n.",
-                meta: buildMeta({
-                    source: "n8n",
-                    errorType: isTimeout ? "timeout" : "network_error"
-                })
+                text: "Internal system error.",
+                meta: buildMeta()
             },
-            { status: isTimeout ? 504 : 500 }
+            { status: 500 }
         );
     }
-} catch (err) {
-    console.error(`[${requestId}] /api/chat critical failure`, err);
-
-    return NextResponse.json(
-        {
-            type: "error",
-            role: "assistant",
-            text: "Internal system error.",
-            meta: buildMeta()
-        },
-        { status: 500 }
-    );
-}
 }
