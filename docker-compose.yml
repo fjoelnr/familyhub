@@ -9,6 +9,7 @@ services:
     environment:
       NODE_ENV: production
       N8N_WEBHOOK_URL: ${N8N_WEBHOOK_URL}
+      N8N_CALENDAR_READ_GOOGLE_URL: ${N8N_CALENDAR_READ_GOOGLE_URL}
     restart: unless-stopped
     logging:
       driver: "json-file"
