@@ -33,6 +33,10 @@ export async function POST(req: Request) {
         const n8nChatUrl = process.env.N8N_WEBHOOK_URL;
         const n8nCalendarUrl = process.env.N8N_CALENDAR_READ_GOOGLE_URL;
 
+        console.log(`[DEBUG] RequestId: ${requestId}`);
+        console.log(`[DEBUG] N8N_WEBHOOK_URL: ${n8nChatUrl}`);
+        console.log(`[DEBUG] N8N_CALENDAR_READ_GOOGLE_URL: ${n8nCalendarUrl}`);
+
         if (!n8nChatUrl) {
             console.error(`[${requestId}] N8N_WEBHOOK_URL missing`);
             return NextResponse.json(
@@ -135,50 +139,48 @@ export async function POST(req: Request) {
                 role: "assistant",
                 text: replyText,
                 actionResult,
-                meta: buildMeta({
-                    source: "n8n",
-                    workflow: workflowId
-                })
-            });
-        } catch (err: unknown) {
-            clearTimeout(timeoutId);
+                meta: build                    workflow: workflowId
+            })
+        });
+    } catch (err: unknown) {
+        clearTimeout(timeoutId);
 
-            const isTimeout =
-                typeof err === "object" &&
-                err !== null &&
-                (err as { name?: string }).name === "AbortError";
+        const isTimeout =
+            typeof err === "object" &&
+            err !== null &&
+            (err as { name?: string }).name === "AbortError";
 
-            console.error(
-                `[${requestId}] n8n communication error (timeout=${isTimeout})`,
-                err
-            );
-
-            return NextResponse.json(
-                {
-                    type: "error",
-                    role: "assistant",
-                    text: isTimeout
-                        ? "The response timed out. Please try again."
-                        : "Internal server error connecting to n8n.",
-                    meta: buildMeta({
-                        source: "n8n",
-                        errorType: isTimeout ? "timeout" : "network_error"
-                    })
-                },
-                { status: isTimeout ? 504 : 500 }
-            );
-        }
-    } catch (err) {
-        console.error(`[${requestId}] /api/chat critical failure`, err);
+        console.error(
+            `[${requestId}] n8n communication error (timeout=${isTimeout})`,
+            err
+        );
 
         return NextResponse.json(
             {
                 type: "error",
                 role: "assistant",
-                text: "Internal system error.",
-                meta: buildMeta()
+                text: isTimeout
+                    ? "The response timed out. Please try again."
+                    : "Internal server error connecting to n8n.",
+                meta: buildMeta({
+                    source: "n8n",
+                    errorType: isTimeout ? "timeout" : "network_error"
+                })
             },
-            { status: 500 }
+            { status: isTimeout ? 504 : 500 }
         );
     }
+} catch (err) {
+    console.error(`[${requestId}] /api/chat critical failure`, err);
+
+    return NextResponse.json(
+        {
+            type: "error",
+            role: "assistant",
+            text: "Internal system error.",
+            meta: buildMeta()
+        },
+        { status: 500 }
+    );
+}
 }
