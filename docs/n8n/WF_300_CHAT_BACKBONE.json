@@ -1,0 +1,199 @@
+{
+    "name": "WF-300 CHAT BACKBONE",
+    "nodes": [
+        {
+            "parameters": {
+                "httpMethod": "POST",
+                "path": "familyhub/chat-backbone",
+                "responseMode": "responseNode",
+                "options": {}
+            },
+            "id": "webhook-node",
+            "name": "Webhook",
+            "type": "n8n-nodes-base.webhook",
+            "typeVersion": 1,
+            "position": [
+                380,
+                300
+            ]
+        },
+        {
+            "parameters": {
+                "jsCode": "function uuidv4() {\n  return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {\n    var r = Math.random() * 16 | 0, v = c == 'x' ? r : (r & 0x3 | 0x8);\n    return v.toString(16);\n  });\n}\n\nconst input = items[0].json.body;\n// Use provided requestId or generate one\nconst reqId = input.requestId || uuidv4();\nconst message = input.message;\n\nif (!message || typeof message !== 'string' || message.trim() === '') {\n  return [{\n    json: {\n      isValid: false,\n      httpStatus: 400,\n      response: {\n        status: \"error\",\n        reply: \"Invalid message: must be a non-empty string.\",\n        requestId: reqId,\n        actionResult: null\n      }\n    }\n  }];\n}\n\nreturn [{\n  json: {\n    isValid: true,\n    requestId: reqId,\n    message: message\n  }\n}];"
+            },
+            "id": "validate-node",
+            "name": "Validate Input",
+            "type": "n8n-nodes-base.code",
+            "typeVersion": 2,
+            "position": [
+                600,
+                300
+            ]
+        },
+        {
+            "parameters": {
+                "conditions": {
+                    "boolean": [
+                        {
+                            "value1": "={{ $json.isValid }}",
+                            "value2": true
+                        }
+                    ]
+                }
+            },
+            "id": "if-valid-node",
+            "name": "Is Valid?",
+            "type": "n8n-nodes-base.if",
+            "typeVersion": 1,
+            "position": [
+                820,
+                300
+            ]
+        },
+        {
+            "parameters": {
+                "method": "POST",
+                "url": "http://192.168.178.40:11434/api/chat",
+                "sendBody": true,
+                "contentType": "json",
+                "bodyParameters": {
+                    "parameters": [
+                        {
+                            "name": "model",
+                            "value": "llama3:latest"
+                        },
+                        {
+                            "name": "messages",
+                            "value": "={{ [ { \"role\": \"user\", \"content\": $json.message } ] }}"
+                        },
+                        {
+                            "name": "stream",
+                            "value": false
+                        }
+                    ]
+                },
+                "options": {}
+            },
+            "id": "ollama-request-node",
+            "name": "Ollama Request",
+            "type": "n8n-nodes-base.httpRequest",
+            "typeVersion": 4.1,
+            "position": [
+                1100,
+                200
+            ],
+            "onError": "continueErrorOutput"
+        },
+        {
+            "parameters": {
+                "jsCode": "const prev = $('Validate Input').first().json;\nconst reqId = prev.requestId;\nconst userMsg = prev.message;\n\n// Check if Ollama failed\nlet reply = \"\";\n\nif (items[0].error) {\n  // Fallback: Echo\n  reply = \"Echo: \" + userMsg;\n} else {\n  const ollama = items[0].json;\n  if (ollama.message && ollama.message.content) {\n    reply = ollama.message.content;\n  } else {\n    reply = \"Echo: \" + userMsg;\n  }\n}\n\nreturn [{\n  json: {\n    httpStatus: 200,\n    response: {\n      status: \"ok\",\n      reply: reply,\n      requestId: reqId,\n      actionResult: null\n    }\n  }\n}];"
+            },
+            "id": "format-response-node",
+            "name": "Format Response",
+            "type": "n8n-nodes-base.code",
+            "typeVersion": 2,
+            "position": [
+                1320,
+                200
+            ]
+        },
+        {
+            "parameters": {
+                "respondWith": "json",
+                "responseBody": "={{ $json.response }}",
+                "options": {
+                    "responseCode": "={{ $json.httpStatus }}"
+                }
+            },
+            "id": "respond-success-node",
+            "name": "Respond Success",
+            "type": "n8n-nodes-base.respondToWebhook",
+            "typeVersion": 1,
+            "position": [
+                1540,
+                200
+            ]
+        },
+        {
+            "parameters": {
+                "respondWith": "json",
+                "responseBody": "={{ $json.response }}",
+                "options": {
+                    "responseCode": "={{ $json.httpStatus }}"
+                }
+            },
+            "id": "respond-error-node",
+            "name": "Respond Error",
+            "type": "n8n-nodes-base.respondToWebhook",
+            "typeVersion": 1,
+            "position": [
+                1100,
+                500
+            ]
+        }
+    ],
+    "connections": {
+        "Webhook": {
+            "main": [
+                [
+                    {
+                        "node": "Validate Input",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Validate Input": {
+            "main": [
+                [
+                    {
+                        "node": "Is Valid?",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Is Valid?": {
+            "main": [
+                [
+                    {
+                        "node": "Ollama Request",
+                        "type": "main",
+                        "index": 0
+                    }
+                ],
+                [
+                    {
+                        "node": "Respond Error",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Ollama Request": {
+            "main": [
+                [
+                    {
+                        "node": "Format Response",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Format Response": {
+            "main": [
+                [
+                    {
+                        "node": "Respond Success",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        }
+    }
+}

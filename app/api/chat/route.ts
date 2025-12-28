@@ -30,68 +30,38 @@ export async function POST(req: Request) {
             );
         }
 
-        const n8nChatUrl = process.env.N8N_WEBHOOK_URL;
-        const n8nCalendarUrl = process.env.N8N_CALENDAR_READ_GOOGLE_URL;
+        const n8nChatUrl = process.env.N8N_CHAT_BACKBONE_URL;
 
         console.log(`[DEBUG] RequestId: ${requestId}`);
-        console.log(`[DEBUG] N8N_WEBHOOK_URL: ${n8nChatUrl}`);
-        console.log(`[DEBUG] N8N_CALENDAR_READ_GOOGLE_URL: ${n8nCalendarUrl}`);
+        console.log(`[DEBUG] N8N_CHAT_BACKBONE_URL: ${n8nChatUrl}`);
 
         if (!n8nChatUrl) {
-            console.error(`[${requestId}] N8N_WEBHOOK_URL missing`);
+            console.error(`[${requestId}] N8N_CHAT_BACKBONE_URL missing`);
+            // STRICT: No fallback allowed.
             return NextResponse.json(
                 {
                     type: "error",
                     role: "assistant",
-                    text: "Configuration error: N8N_WEBHOOK_URL is missing.",
+                    text: "Configuration error: N8N_CHAT_BACKBONE_URL is missing.",
                     meta: buildMeta()
                 },
                 { status: 500 }
             );
         }
 
-        let targetUrl = n8nChatUrl;
-        let workflowId = "chat_hello";
-        let workflowPayload: Record<string, unknown> = { message };
-
-        // Keyword Routing (Phase H)
-        const lowerMsg = message.toLowerCase();
-        if (
-            lowerMsg.includes("kalender") ||
-            lowerMsg.includes("termin") ||
-            lowerMsg.includes("was steht") ||
-            lowerMsg.includes("heute")
-        ) {
-            if (!n8nCalendarUrl) {
-                console.warn(`[${requestId}] Calendar intent detected but N8N_CALENDAR_READ_GOOGLE_URL missing.`);
-                // Fallback or Error? 
-                // Decision: Proceed with chat default but log warning, OR fail specific intent?
-                // Given the user wants "Explicit Config", missing config is an error state for this intent.
-                // However, "Self-Correction": If missing, maybe better to use chat default which might reply "I don't know".
-                // But for this task, I will assume it's set as I just appended it. I will fall back to chat to define behavior safely.
-                // Actually, let's keep it robust: Use chat workflow if calendar config is missing.
-            } else {
-                targetUrl = n8nCalendarUrl;
-                workflowId = "calendar_read_google";
-                workflowPayload = {
-                    range: "today"
-                };
-            }
-        }
-
+        // Standardize Payload for WF-300
         const n8nPayload = {
-            workflow: workflowId,
-            requestId,
-            payload: workflowPayload
+            message,
+            requestId
         };
 
         const controller = new AbortController();
         const timeoutId = setTimeout(() => controller.abort(), N8N_TIMEOUT_MS);
 
-        console.log(`[${requestId}] → n8n`, n8nPayload);
+        console.log(`[${requestId}] → n8n (Backbone)`, n8nPayload);
 
         try {
-            const response = await fetch(targetUrl, {
+            const response = await fetch(n8nChatUrl, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify(n8nPayload),
@@ -112,7 +82,7 @@ export async function POST(req: Request) {
                         text: `n8n Webhook Error (${response.status})`,
                         meta: buildMeta({
                             source: "n8n",
-                            workflow: workflowId
+                            workflow: "WF-300"
                         })
                     },
                     { status: 502 }
@@ -120,19 +90,17 @@ export async function POST(req: Request) {
             }
 
             const data = await response.json();
+
+            // Standardize Response
             const replyText =
                 typeof data?.reply === "string"
                     ? data.reply
                     : "No reply received from n8n.";
 
-            // Map Action Result if events are present
-            let actionResult = undefined;
-            if (data?.events && Array.isArray(data.events)) {
-                actionResult = {
-                    type: "calendar_events",
-                    payload: data.events
-                };
-            }
+            // STRICT: actionResult must be present (null or object), but we should handle if n8n returns undefined by defaulting to null for the UI.
+            // The prompt says "actionResult muss existieren, darf aber null sein" in the n8n output.
+            // We pass it through.
+            const actionResult = data?.actionResult === undefined ? null : data.actionResult;
 
             return NextResponse.json({
                 type: "chat",
@@ -140,7 +108,7 @@ export async function POST(req: Request) {
                 text: replyText,
                 actionResult,
                 meta: buildMeta({
-                    workflow: workflowId
+                    workflow: "WF-300"
                 })
             });
         } catch (err: unknown) {
