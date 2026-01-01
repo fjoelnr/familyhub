@@ -1,3 +1,19 @@
+# FamilyHub
+
+**FamilyHub ist ein gemeinsamer digitaler Ort für die Familie.**
+
+Er dient als ruhiger Bezugspunkt im Alltag und basiert auf drei Säulen:
+
+*   **Informations-Ort**: Der zentrale Punkt für Orientierung im Alltag. Hier laufen wichtige Informationen zusammen, damit alle den Überblick behalten.
+*   **Organisations-Ort**: Unterstützung bei der gemeinsamen Planung, Terminen und täglichen Abläufen.
+*   **Wissens- & Erinnerungs-Ort**: Ein bewahrter Platz für Notizen, Wissen und festgehaltene Erinnerungen.
+
+FamilyHub ist bewusst einfach gehalten und wächst mit den Bedürfnissen der Familie.
+
+---
+
+## Technische Dokumentation
+
 This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
 
 ## Getting Started

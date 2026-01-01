@@ -1,0 +1,108 @@
+{
+  "name": "WF.399.fallback.chat.v1a",
+  "nodes": [
+    {
+      "parameters": {},
+      "id": "2bfa6df4-5faf-4f0d-80b3-a607b2008ddb",
+      "name": "Execute Workflow Trigger",
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "typeVersion": 1,
+      "position": [
+        48,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "language": "javascript"
+      },
+      "id": "62cbf947-9a57-46b0-9d3c-2e1b10a973c7",
+      "name": "Format Output",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 1,
+      "position": [
+        608,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "batching": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "typeVersion": 1.7,
+      "position": [
+        272,
+        0
+      ],
+      "id": "3740c4b9-f4ad-447a-bd3b-7e3f34fbc5d5",
+      "name": "Basic LLM Chain"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmOllama",
+      "typeVersion": 1,
+      "position": [
+        272,
+        176
+      ],
+      "id": "5d22ae28-7159-46a8-87d4-634c7ba00f7c",
+      "name": "Ollama Model",
+      "credentials": {
+        "ollamaApi": {
+          "id": "tyCxpLPLHSjb5UZ4",
+          "name": "Ollama account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Ollama Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Basic LLM Chain",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Execute Workflow Trigger": {
+      "main": [
+        [
+          {
+            "node": "Basic LLM Chain",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Basic LLM Chain": {
+      "main": [
+        [
+          {
+            "node": "Format Output",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "227810aa-4b9a-4318-b8ce-a6b87cbc37c8",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "7730c1c37b85f988d1ff983ae031ea08ae25df877671906c9bf4db6a4f067873"
+  },
+  "id": "bClBy0zfwvrpQx1A",
+  "tags": []
+}

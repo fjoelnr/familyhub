@@ -1,0 +1,274 @@
+{
+  "name": "WF.310.capability.router.v1",
+  "nodes": [
+    {
+      "parameters": {},
+      "id": "06329a82-e335-4421-9230-5c7a8a9a8ffe",
+      "name": "Execute Workflow Trigger",
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "typeVersion": 1,
+      "position": [
+        -544,
+        560
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "const originalInput = $('Execute Workflow Trigger').first().json;\nlet routerOutput = {};\n\ntry {\n  // Attempt to parse Ollama output\n  let text = items[0].json.response || items[0].json.text;\n  // Clean potential markdown code blocks\n  text = text.replace(/```json/g, '').replace(/```/g, '').trim();\n  routerOutput = JSON.parse(text);\n} catch (e) {\n  // Safe Failure -> Default to chat\n  routerOutput = {\n    capability: \"chat\",\n    confidence: 0,\n    reason: \"JSON Parsing Failed\",\n    parameters: {}\n  };\n}\n\nreturn [{\n  json: {\n    ...originalInput,\n    routerDecision: routerOutput\n  }\n}];"
+      },
+      "id": "c0cbd20b-44d1-483c-a871-4ae236686916",
+      "name": "Parse Decision",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -96,
+        560
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "string": [
+            {
+              "value1": "={{ $json.routerDecision.capability }}",
+              "operation": "equals",
+              "value2": "calendar.read"
+            }
+          ]
+        }
+      },
+      "id": "709665f4-1a4e-4896-9b52-68b1a7318137",
+      "name": "Switch Capability",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [
+        128,
+        560
+      ]
+    },
+    {
+      "parameters": {
+        "workflowId": "WF.320.calendar.read.v1",
+        "mode": "each",
+        "options": {}
+      },
+      "id": "a345c4ee-e7ff-448a-870b-6f44409ee7a6",
+      "name": "Exec Calendar",
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1,
+      "position": [
+        368,
+        448
+      ]
+    },
+    {
+      "parameters": {
+        "workflowId": "WF.399.fallback.chat.v1",
+        "mode": "each",
+        "options": {}
+      },
+      "id": "fdb37de4-f71b-4cd4-9c39-455dfb7e3bd0",
+      "name": "Exec Fallback",
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1,
+      "position": [
+        368,
+        704
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Merge Router Metadata into Final Response\nconst routerDecision = $('Parse Decision').first().json.routerDecision;\nconst workflowResult = items[0].json;\n\n// Inject Router Confidence/Reason\nif (!workflowResult.meta) workflowResult.meta = {};\n\nworkflowResult.meta.router_confidence = routerDecision.confidence;\nworkflowResult.meta.router_reason = routerDecision.reason;\nworkflowResult.meta.router_capability = routerDecision.capability;\n\nreturn [{\n  json: workflowResult\n}];"
+      },
+      "id": "663ee223-bd72-4e9d-b05e-a0c8504b23d5",
+      "name": "Enrich Meta",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        624,
+        560
+      ]
+    },
+    {
+      "parameters": {
+        "model": "gpt-oss:20b",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOllama",
+      "typeVersion": 1,
+      "position": [
+        -512,
+        784
+      ],
+      "id": "daf3ff31-1f02-46ab-9240-c0dd0dfd103e",
+      "name": "Ollama Chat Model",
+      "credentials": {
+        "ollamaApi": {
+          "id": "tyCxpLPLHSjb5UZ4",
+          "name": "Ollama account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "needsFallback": true,
+        "messages": {
+          "messageValues": [
+            {
+              "type": "HumanMessagePromptTemplate",
+              "message": "You are the Capability Router of the FamilyHub system.\n\nIMPORTANT:\n- You are NOT a chat assistant.\n- You do NOT answer the user.\n- You ONLY decide which capability should handle the request.\n- Your output is consumed by other systems, not by humans.\n\nYour task:\nGiven a user message, select the SINGLE most appropriate capability from the allowed list and output a STRICT JSON object.\n\nYou MUST follow these rules:\n\n1. Output MUST be valid JSON.\n2. Output MUST match the schema exactly.\n3. Do NOT include explanations outside the JSON.\n4. Do NOT invent new capabilities.\\\\n\n5. If you are unsure, confused, or the request is general conversation, choose \\\"chat\\\".\n6. If the request does not clearly match a capability, choose \\\"chat\\\".\n\nAllowed capabilities (EXACT STRINGS):\n- \\\"calendar.read\\\"\n- \\\"chat\\\"\n\nDecision guidelines:\n- Choose \\\"calendar.read\\\" ONLY if the user is clearly asking about:\n  - appointments\n  - schedule\n  - calendar events\n  - what is happening today / tomorrow / on a date\n- Choose \\\"chat\\\" for:\n  - greetings\n  - general questions\n  - unclear intent\n  - jokes, explanations, or conversation\n  - ANY uncertainty\n\nYou may extract simple parameters if obvious (e.g. date = \\\"today\\\"), otherwise leave parameters empty.\n\nOutput Schema (MANDATORY):\n\n{\n  \\\"capability\\\": \\\"calendar.read | chat\\\",\n  \\\"confidence\\\": number,\n  \\\"reason\\\": string,\n  \\\"parameters\\\": {\n  \\\"date\\\": string | null\n  }\n}"
+            }
+          ]
+        },
+        "batching": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "typeVersion": 1.7,
+      "position": [
+        -384,
+        560
+      ],
+      "id": "b60e0b81-a97b-40ff-a0c1-7a23d29edd3d",
+      "name": "Router LLM Chain"
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "value": "gpt-5-mini",
+          "mode": "list",
+          "cachedResultName": "gpt-5-mini"
+        },
+        "builtInTools": {
+          "webSearch": {
+            "searchContextSize": "medium"
+          }
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.3,
+      "position": [
+        -336,
+        784
+      ],
+      "id": "93d48be5-c035-4b80-82af-763f76d257d4",
+      "name": "OpenAI Chat Model",
+      "credentials": {
+        "openAiApi": {
+          "id": "bihF3w9TTrGm63kG",
+          "name": "OpenAi account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Parse Decision": {
+      "main": [
+        [
+          {
+            "node": "Switch Capability",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Switch Capability": {
+      "main": [
+        [
+          {
+            "node": "Exec Calendar",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Exec Fallback",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Exec Calendar": {
+      "main": [
+        [
+          {
+            "node": "Enrich Meta",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Exec Fallback": {
+      "main": [
+        [
+          {
+            "node": "Enrich Meta",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Ollama Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Router LLM Chain",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Router LLM Chain": {
+      "main": [
+        [
+          {
+            "node": "Parse Decision",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Execute Workflow Trigger": {
+      "main": [
+        [
+          {
+            "node": "Router LLM Chain",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Router LLM Chain",
+            "type": "ai_languageModel",
+            "index": 1
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "8dc006ca-6f40-476d-927a-38b3d39a6a7d",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "7730c1c37b85f988d1ff983ae031ea08ae25df877671906c9bf4db6a4f067873"
+  },
+  "id": "PxWuD0qlMBeCguhQ",
+  "tags": []
+}

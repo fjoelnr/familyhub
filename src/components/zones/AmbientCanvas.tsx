@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { useFamilyHub } from "@/lib/contexts/FamilyHubContext";
 import CalendarWidget from "@/components/widgets/CalendarWidget";
+import StartInfoSection from "@/components/widgets/StartInfoSection";
 import { CalendarEvent } from "@/lib/contracts/calendar";
 
 export default function AmbientCanvas() {
@@ -44,6 +45,8 @@ export default function AmbientCanvas() {
                 </h3>
                 <CalendarWidget events={events} />
             </div>
+
+            <StartInfoSection />
         </div>
     );
 }
