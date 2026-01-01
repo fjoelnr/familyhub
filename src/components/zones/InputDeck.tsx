@@ -68,24 +68,53 @@ export default function InputDeck() {
         }
     }
 
+    const EXAMPLE_PROMPTS = [
+        "Was steht heute an?",
+        "Zeig mir meine nächsten Termine.",
+        "Füge eine Info für die Familie hinzu.",
+        "Worum geht’s morgen?"
+    ];
+
     return (
-        <div className={`flex gap-2 p-3 border-t bg-slate-900 border-slate-800 transition-opacity duration-300 ${isLocked ? 'opacity-50 pointer-events-none' : ''}`}>
-            <input
-                ref={inputRef}
-                value={text}
-                onChange={(e) => setText(e.target.value)}
-                onKeyDown={(e) => e.key === "Enter" && submit()}
-                disabled={isLocked}
-                className="flex-1 border border-slate-700 bg-slate-800 px-3 py-2 rounded-lg text-slate-100 placeholder:text-slate-500 focus:outline-none focus:ring-1 focus:ring-blue-500 transition-all disabled:cursor-not-allowed"
-                placeholder={uiState === 'idle' ? "Wake up FamilyHub..." : "Ask something..."}
-            />
-            <button
-                onClick={submit}
-                className="px-4 py-2 bg-slate-800 hover:bg-slate-700 border border-slate-700 rounded-lg text-slate-300 font-medium transition-colors"
-                disabled={!text.trim()}
-            >
-                Send
-            </button>
+        <div className={`flex flex-col gap-2 p-3 border-t bg-slate-900 border-slate-800 transition-opacity duration-300 ${isLocked ? 'opacity-50 pointer-events-none' : ''}`}>
+
+            {/* Input Row */}
+            <div className="flex gap-2">
+                <input
+                    ref={inputRef}
+                    value={text}
+                    onChange={(e) => setText(e.target.value)}
+                    onKeyDown={(e) => e.key === "Enter" && submit()}
+                    disabled={isLocked}
+                    className="flex-1 border border-slate-700 bg-slate-800 px-3 py-2 rounded-lg text-slate-100 placeholder:text-slate-500 focus:outline-none focus:ring-1 focus:ring-blue-500 transition-all disabled:cursor-not-allowed"
+                    placeholder={uiState === 'idle' ? "Wake up FamilyHub..." : "Ask something..."}
+                />
+                <button
+                    onClick={submit}
+                    className="px-4 py-2 bg-slate-800 hover:bg-slate-700 border border-slate-700 rounded-lg text-slate-300 font-medium transition-colors"
+                    disabled={!text.trim()}
+                >
+                    Send
+                </button>
+            </div>
+
+            {/* Example Prompts - Only show when no text is typed */}
+            {!text && (
+                <div className="flex flex-wrap gap-2 px-1 animate-in fade-in slide-in-from-bottom-1 duration-300">
+                    {EXAMPLE_PROMPTS.map((prompt, i) => (
+                        <button
+                            key={i}
+                            onClick={() => {
+                                setText(prompt);
+                                inputRef.current?.focus();
+                            }}
+                            className="text-xs text-slate-400 bg-slate-800/50 hover:bg-slate-800 border border-slate-800 hover:border-slate-700 px-3 py-1.5 rounded-full transition-all cursor-pointer"
+                        >
+                            {prompt}
+                        </button>
+                    ))}
+                </div>
+            )}
         </div>
     );
 }
