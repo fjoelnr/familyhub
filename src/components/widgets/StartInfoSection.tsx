@@ -1,7 +1,7 @@
 export default function StartInfoSection() {
     return (
-        <div className="w-full max-w-4xl mx-auto mt-12 p-8 text-slate-400 opacity-80 transition-opacity hover:opacity-100">
-            <h2 className="text-xl font-light text-slate-300 text-center mb-8 tracking-wide">
+        <div className="w-full max-w-4xl mx-auto p-6 rounded-xl border border-slate-800/30 bg-slate-900/30 backdrop-blur-[1px] text-slate-400 opacity-80 transition-opacity hover:opacity-100">
+            <h2 className="text-xl font-light text-slate-300 text-center mb-8 tracking-wide leading-relaxed">
                 Wofür dieser Ort da ist
             </h2>
 

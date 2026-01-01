@@ -76,7 +76,19 @@ export default function InputDeck() {
     ];
 
     return (
-        <div className={`flex flex-col gap-2 p-3 border-t bg-slate-900 border-slate-800 transition-opacity duration-300 ${isLocked ? 'opacity-50 pointer-events-none' : ''}`}>
+        <div className={`flex flex-col gap-2 p-3 border-t bg-slate-900 border-slate-800/50 backdrop-blur-md transition-opacity duration-300 ${isLocked ? 'opacity-50 pointer-events-none' : ''}`}>
+
+            {/* Valur Falke Anchor (Idle State Only) */}
+            {uiState === 'idle' && (
+                <div className="flex justify-center pb-2 animate-in fade-in slide-in-from-bottom-2 duration-500">
+                    <img
+                        src="/images/valur-falke.png"
+                        alt=""
+                        className="h-16 w-auto opacity-100" // No fade, clear anchor
+                        aria-hidden="true"
+                    />
+                </div>
+            )}
 
             {/* Input Row */}
             <div className="flex gap-2">
