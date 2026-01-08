@@ -41,11 +41,6 @@ export default function InputDeck() {
         setActivityStatus('sending');
 
         try {
-            // Simulate 'sending' -> 'waiting' transition if needed, 
-            // but sendChatMessage is one async call. 
-            // Let's set 'waiting_for_response' immediately before call or just 'sending'.
-            // Requirements say: "thinking" / activity indicator.
-            // Let's use 'waiting_for_response' as the main busy state.
             setActivityStatus('waiting_for_response');
 
             const response = await sendChatMessage(userText);
@@ -70,49 +65,17 @@ export default function InputDeck() {
 
     const EXAMPLE_PROMPTS = [
         "Was steht heute an?",
-        "Zeig mir meine nächsten Termine.",
-        "Füge eine Info für die Familie hinzu.",
-        "Worum geht’s morgen?"
+        "Zeig mir meine nächsten Termine",
+        "Was ist heute wichtig?",
+        "Schreib Brot auf die Einkaufsliste"
     ];
 
     return (
-        <div className={`flex flex-col gap-2 p-3 border-t bg-slate-900 border-slate-800/50 backdrop-blur-md transition-opacity duration-300 ${isLocked ? 'opacity-50 pointer-events-none' : ''}`}>
+        <div className={`w-full max-w-4xl mx-auto flex flex-col gap-3 transition-opacity duration-300 ${isLocked ? 'opacity-50 pointer-events-none' : ''}`}>
 
-            {/* Valur Falke Anchor (Idle State Only) */}
-            {uiState === 'idle' && (
-                <div className="flex justify-center pb-2 animate-in fade-in slide-in-from-bottom-2 duration-500">
-                    <img
-                        src="/images/valur-falke.png"
-                        alt=""
-                        className="h-16 w-auto opacity-100" // No fade, clear anchor
-                        aria-hidden="true"
-                    />
-                </div>
-            )}
-
-            {/* Input Row */}
-            <div className="flex gap-2">
-                <input
-                    ref={inputRef}
-                    value={text}
-                    onChange={(e) => setText(e.target.value)}
-                    onKeyDown={(e) => e.key === "Enter" && submit()}
-                    disabled={isLocked}
-                    className="flex-1 border border-slate-700 bg-slate-800 px-3 py-2 rounded-lg text-slate-100 placeholder:text-slate-500 focus:outline-none focus:ring-1 focus:ring-blue-500 transition-all disabled:cursor-not-allowed"
-                    placeholder={uiState === 'idle' ? "Wake up FamilyHub..." : "Ask something..."}
-                />
-                <button
-                    onClick={submit}
-                    className="px-4 py-2 bg-slate-800 hover:bg-slate-700 border border-slate-700 rounded-lg text-slate-300 font-medium transition-colors"
-                    disabled={!text.trim()}
-                >
-                    Send
-                </button>
-            </div>
-
-            {/* Example Prompts - Only show when no text is typed */}
-            {!text && (
-                <div className="flex flex-wrap gap-2 px-1 animate-in fade-in slide-in-from-bottom-1 duration-300">
+            {/* Example Prompts - Only show when no text is typed and in Idle/Empty Chat */}
+            {!text && uiState === 'idle' && (
+                <div className="flex flex-wrap gap-2 justify-center md:justify-start animate-in fade-in slide-in-from-bottom-1 duration-300 mb-1">
                     {EXAMPLE_PROMPTS.map((prompt, i) => (
                         <button
                             key={i}
@@ -120,13 +83,40 @@ export default function InputDeck() {
                                 setText(prompt);
                                 inputRef.current?.focus();
                             }}
-                            className="text-xs text-slate-400 bg-slate-800/50 hover:bg-slate-800 border border-slate-800 hover:border-slate-700 px-3 py-1.5 rounded-full transition-all cursor-pointer"
+                            className="text-xs font-medium text-[var(--accent-gold)] bg-[var(--surface-highlight)]/30 hover:bg-[var(--surface-highlight)] border border-[var(--border)] hover:border-[var(--accent-gold)] px-4 py-2 rounded-full transition-all cursor-pointer shadow-sm"
                         >
                             {prompt}
                         </button>
                     ))}
                 </div>
             )}
+
+            {/* Input Row */}
+            <div className="flex items-center gap-3 bg-[var(--surface-dark)] p-2 rounded-2xl border border-[var(--border)] shadow-lg focus-within:ring-2 focus-within:ring-[var(--interaction-blue)] transition-shadow">
+                <input
+                    ref={inputRef}
+                    value={text}
+                    onChange={(e) => setText(e.target.value)}
+                    onKeyDown={(e) => e.key === "Enter" && submit()}
+                    disabled={isLocked}
+                    className="flex-1 bg-transparent px-3 py-2 text-[var(--text-primary)] placeholder:[var(--text-secondary)] focus:outline-none disabled:cursor-not-allowed text-base font-medium"
+                    placeholder="Frag Valur..."
+                />
+                <button
+                    onClick={submit}
+                    className={`
+                        w-10 h-10 rounded-xl flex items-center justify-center transition-all
+                        ${text.trim()
+                            ? 'bg-[var(--interaction-blue)] text-white hover:bg-blue-600 shadow-md'
+                            : 'bg-[var(--surface-highlight)] text-slate-500 cursor-not-allowed'}
+                    `}
+                    disabled={!text.trim()}
+                >
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-5 h-5">
+                        <path d="M3.478 2.404a.75.75 0 0 0-.926.941l2.432 7.905H13.5a.75.75 0 0 1 0 1.5H4.984l-2.432 7.905a.75.75 0 0 0 .926.94 60.519 60.519 0 0 0 18.445-8.986.75.75 0 0 0 0-1.218A60.517 60.517 0 0 0 3.478 2.404Z" />
+                    </svg>
+                </button>
+            </div>
         </div>
     );
 }

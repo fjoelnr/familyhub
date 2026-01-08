@@ -1,20 +1,29 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
+  /* Valur - FamilyHub Color System */
+  /* Primary Identity */
+  --valur-red: #d02020;
+  --interaction-blue: #0070f3;
+  --accent-gold: #ffb400;
 
-[data-fs-mode="nerdy"] {
-  --background: #020617;
-  /* slate-950 */
-  --foreground: #00ff41;
-  /* matrix green */
-}
+  /* Neutrals (Dark Theme Base) */
+  --background-dark: #0f172a;
+  /* Slate 900 */
+  --surface-dark: #1e293b;
+  /* Slate 800 */
+  --surface-highlight: #334155;
+  /* Slate 700 */
+  --border: #1f2933;
 
-[data-fs-mode="manga"] {
-  --background: #ffffff;
-  --foreground: #000000;
+  --text-primary: #e5e7eb;
+  /* Gray 200 */
+  --text-secondary: #9ca3af;
+  /* Gray 400 */
+
+  /* Default Mapping */
+  --background: var(--background-dark);
+  --foreground: var(--text-primary);
 }
 
 @theme inline {
