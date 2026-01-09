@@ -9,15 +9,12 @@ export default function InputDeck() {
     const { pushResponse, setActivityStatus, uiState, state } = useAgentRuntime();
     const inputRef = useRef<HTMLInputElement>(null);
 
-    // Lock input when sending or waiting
-    const isLocked = state.activityStatus === 'sending' || state.activityStatus === 'waiting_for_response';
-
-    // Auto-focus when entering interaction mode (and not locked)
+    // Auto-focus when entering interaction mode
     useEffect(() => {
-        if (uiState === 'chat' && !isLocked && inputRef.current) {
+        if (uiState === 'chat' && inputRef.current) {
             inputRef.current.focus();
         }
-    }, [uiState, isLocked]);
+    }, [uiState]);
 
     // In confirmation mode, we focus entirely on the action decision.
     if (uiState === "awaiting_action") {
@@ -25,11 +22,10 @@ export default function InputDeck() {
     }
 
     async function submit() {
-        if (!text.trim() || isLocked) return;
+        if (!text.trim()) return;
 
-        // Immediately show user message
         const userText = text;
-        setText(""); // Clear input early
+        setText("");
 
         pushResponse({
             type: "chat",
@@ -37,29 +33,23 @@ export default function InputDeck() {
             text: userText,
         });
 
-        // Update Status: sending -> waiting
         setActivityStatus('sending');
+        // Small visual delay before "waiting" status for better feel
+        await new Promise(r => setTimeout(r, 100));
+        setActivityStatus('waiting_for_response');
 
         try {
-            setActivityStatus('waiting_for_response');
-
             const response = await sendChatMessage(userText);
             pushResponse(response);
-            // pushResponse resets status to idle/error automatically
         } catch (e) {
             console.error(e);
+            // Even in a stub, fallback to error message if something really weird happens
             pushResponse({
                 type: "error",
                 role: "assistant",
-                text: "Failed to contact FamilyHub backend.",
+                text: "Ein unerwarteter Fehler ist aufgetreten.",
             });
-            // Manual reset if pushResponse didn't handle it (it does handle error type)
             setActivityStatus('error');
-        } finally {
-            // Re-focus after sending if not busy
-            setTimeout(() => {
-                if (inputRef.current) inputRef.current.focus();
-            }, 10);
         }
     }
 
@@ -71,7 +61,7 @@ export default function InputDeck() {
     ];
 
     return (
-        <div className={`w-full max-w-4xl mx-auto flex flex-col gap-3 transition-opacity duration-300 ${isLocked ? 'opacity-50 pointer-events-none' : ''}`}>
+        <div className={`w-full max-w-4xl mx-auto flex flex-col gap-3 transition-opacity duration-300`}>
 
             {/* Example Prompts - Only show when no text is typed and in Idle/Empty Chat */}
             {!text && uiState === 'idle' && (
@@ -98,7 +88,6 @@ export default function InputDeck() {
                     value={text}
                     onChange={(e) => setText(e.target.value)}
                     onKeyDown={(e) => e.key === "Enter" && submit()}
-                    disabled={isLocked}
                     className="flex-1 bg-transparent px-3 py-2 text-[var(--text-primary)] placeholder:[var(--text-secondary)] focus:outline-none disabled:cursor-not-allowed text-base font-medium"
                     placeholder="Frag Valur..."
                 />

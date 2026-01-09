@@ -4,8 +4,35 @@ import { mockTaskLists } from '@/lib/data/mockTasks';
 
 export default function TaskListView() {
     // Local state for immediate feedback (checkbox toggle)
-    // In a real app this would sync back, here we just toggle visual state
     const [lists, setLists] = useState(mockTaskLists);
+
+    // Persistence key
+    const STORAGE_KEY = 'familyhub.taskState.v1';
+
+    // Load from localStorage on mount
+    React.useEffect(() => {
+        try {
+            const saved = localStorage.getItem(STORAGE_KEY);
+            if (saved) {
+                const parsed = JSON.parse(saved);
+                // Simple validation: check if it's an array
+                if (Array.isArray(parsed) && parsed.length > 0) {
+                    setLists(parsed);
+                }
+            }
+        } catch (e) {
+            console.error("Failed to load task state", e);
+        }
+    }, []);
+
+    // Save to localStorage on change
+    React.useEffect(() => {
+        try {
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(lists));
+        } catch (e) {
+            console.error("Failed to save task state", e);
+        }
+    }, [lists]);
 
     const toggleItem = (listId: string, itemId: string) => {
         setLists(prev => prev.map(list => {

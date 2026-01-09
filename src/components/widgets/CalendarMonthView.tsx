@@ -6,6 +6,9 @@ export default function CalendarMonthView() {
     // Determine "Today" (mocked as 2026-01-08)
     const todayStr = "2026-01-08";
 
+    // State for selected event overlay
+    const [selectedEvent, setSelectedEvent] = React.useState<any>(null);
+
     // Helper to check if a date string matches a day in grid
     const getEventsForDay = (dateStr: string) => {
         return mockEvents.filter(e => e.date === dateStr);
@@ -47,7 +50,7 @@ export default function CalendarMonthView() {
     });
 
     return (
-        <div className="flex flex-col h-full bg-[var(--surface-dark)] rounded-xl border border-[var(--border)] overflow-hidden shadow-sm">
+        <div className="flex flex-col h-full bg-[var(--surface-dark)] rounded-xl border border-[var(--border)] overflow-hidden shadow-sm relative">
             {/* Header */}
             <div className="flex items-center justify-between p-4 border-b border-[var(--border)] bg-[var(--surface-highlight)]/20">
                 <div className="flex items-baseline gap-2">
@@ -95,18 +98,67 @@ export default function CalendarMonthView() {
 
                         <div className="space-y-1">
                             {d.events.map((e, i) => (
-                                <div key={i} className={`
-                                    text-[10px] px-1.5 py-0.5 rounded text-white truncate font-medium 
-                                    ${e.color} shadow-sm opacity-90 hover:opacity-100
-                                    ${e.contextTag ? 'ring-2 ring-offset-1 ring-offset-[#1E1E2E] ring-orange-400/70 z-10' : ''}
-                                `}>
+                                <button key={i}
+                                    onClick={() => setSelectedEvent(e)}
+                                    className={`
+                                        w-full text-left text-[10px] px-1.5 py-0.5 rounded text-white truncate font-medium 
+                                        ${e.color} shadow-sm opacity-90 hover:opacity-100 hover:scale-[1.02] transform transition-all cursor-pointer
+                                        ${e.contextTag ? 'ring-2 ring-offset-1 ring-offset-[#1E1E2E] ring-orange-400/70 z-10' : ''}
+                                    `}
+                                >
                                     {e.title}
-                                </div>
+                                </button>
                             ))}
                         </div>
                     </div>
                 ))}
             </div>
+
+            {/* Detailed Event Overlay */}
+            {selectedEvent && (
+                <div className="absolute inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm animate-in fade-in duration-200"
+                    onClick={() => setSelectedEvent(null)}>
+                    <div className="bg-[var(--surface-dark)] border border-[var(--border)] rounded-xl shadow-2xl p-6 max-w-sm w-full mx-4 space-y-4"
+                        onClick={e => e.stopPropagation()}>
+
+                        <div className="flex justify-between items-start">
+                            <h3 className="text-lg font-semibold text-[var(--text-primary)]">{selectedEvent.title}</h3>
+                            <button onClick={() => setSelectedEvent(null)} className="text-slate-400 hover:text-white">
+                                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                                    <path fillRule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clipRule="evenodd" />
+                                </svg>
+                            </button>
+                        </div>
+
+                        <div className="space-y-2 text-sm text-[var(--text-secondary)]">
+                            <div className="flex items-center gap-2">
+                                <span>📅</span>
+                                <span>{selectedEvent.date}</span>
+                            </div>
+                            {selectedEvent.time && (
+                                <div className="flex items-center gap-2">
+                                    <span>⏰</span>
+                                    <span>{selectedEvent.time}</span>
+                                </div>
+                            )}
+                            <div className="pt-2">
+                                <span className={`inline-block px-2 py-0.5 rounded textxs font-medium text-white ${selectedEvent.color}`}>
+                                    Event
+                                </span>
+                            </div>
+                        </div>
+
+                        {selectedEvent.contextTag && (
+                            <div className="mt-2 pt-2 border-t border-[var(--border)]">
+                                <span className="text-xs text-orange-400 font-medium flex items-center gap-1">
+                                    <span className="w-1.5 h-1.5 rounded-full bg-orange-400"></span>
+                                    Relevance: {selectedEvent.contextTag}
+                                </span>
+                            </div>
+                        )}
+                    </div>
+                </div>
+            )}
         </div>
     );
 }

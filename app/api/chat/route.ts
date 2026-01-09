@@ -99,7 +99,9 @@ export async function POST(req: Request) {
 
             // STRICT: actionResult must be present (null or object), but we should handle if n8n returns undefined by defaulting to null for the UI.
             // The prompt says "actionResult muss existieren, darf aber null sein" in the n8n output.
-            // We pass it through.
+            if (data?.actionResult === undefined) {
+                console.log(`[${requestId}] Warning: n8n returned undefined actionResult, defaulting to null.`);
+            }
             const actionResult = data?.actionResult === undefined ? null : data.actionResult;
 
             return NextResponse.json({

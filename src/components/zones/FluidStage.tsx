@@ -77,38 +77,65 @@ export default function FluidStage() {
 
     // 2. Chat / Interaction State (Active)
     return (
-        <div className="flex-1 overflow-auto p-4 space-y-4 pb-20 scroll-smooth bg-[var(--background-dark)]">
+        <div className="h-full w-full overflow-y-auto p-4 space-y-4 pb-20 scroll-smooth bg-[var(--background-dark)]">
             {/* Simple Header for Context Switching */}
             <div className="text-center py-4 text-slate-500 text-sm uppercase tracking-widest border-b border-slate-800">
                 Active Session
             </div>
 
-            {state.responses.map((r, i) => (
-                <div
-                    key={i}
-                    className={`flex flex-col max-w-[80%] animate-in slide-in-from-bottom-2 duration-300 ${r.role === "user"
-                        ? "self-end items-end ml-auto"
-                        : "self-start items-start mr-auto"
-                        }`}
-                >
+            {state.responses.map((r, i) => {
+                // Special handling for system/error messages
+                if (r.type === 'notice') {
+                    return (
+                        <div key={i} className="w-full flex justify-center my-4 animate-in fade-in duration-500">
+                            <div className="bg-slate-800/40 border border-slate-700/50 text-slate-400 px-4 py-2 rounded-full text-xs font-medium tracking-wide flex items-center gap-2 shadow-sm backdrop-blur-sm">
+                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="w-4 h-4 opacity-70">
+                                    <path fillRule="evenodd" d="M18 10a8 8 0 1 1-16 0 8 8 0 0 1 16 0Zm-7-4a1 1 0 1 1-2 0 1 1 0 0 1 2 0ZM9 9a.75.75 0 0 0 0 1.5h.253a.25.25 0 0 1 .244.304l-.459 2.066A1.75 1.75 0 0 0 10.747 15H11a.75.75 0 0 0 0-1.5h-.253a.25.25 0 0 1-.244-.304l.459-2.066A1.75 1.75 0 0 0 9.253 9H9Z" clipRule="evenodd" />
+                                </svg>
+                                {r.text}
+                            </div>
+                        </div>
+                    );
+                }
+
+                if (r.type === 'error') {
+                    return (
+                        <div key={i} className="w-full flex justify-center my-2 animate-in fade-in duration-300">
+                            <div className="bg-orange-500/10 border border-orange-500/20 text-orange-200/80 px-4 py-2 rounded-lg text-sm font-medium flex items-center gap-2">
+                                <span className="w-1.5 h-1.5 rounded-full bg-orange-500/50"></span>
+                                {r.text}
+                            </div>
+                        </div>
+                    );
+                }
+
+                return (
                     <div
-                        className={`rounded-2xl px-5 py-3 shadow-sm ${r.role === "user"
-                            ? "bg-[var(--interaction-blue)] text-white rounded-br-none"
-                            : "bg-[var(--surface-highlight)] border border-[var(--border)] text-slate-100 rounded-bl-none"
+                        key={i}
+                        className={`flex flex-col max-w-[80%] animate-in slide-in-from-bottom-2 duration-300 ${r.role === "user"
+                            ? "self-end items-end ml-auto"
+                            : "self-start items-start mr-auto"
                             }`}
                     >
-                        <div className="whitespace-pre-wrap leading-relaxed">{r.text}</div>
+                        <div
+                            className={`rounded-2xl px-5 py-3 shadow-sm ${r.role === "user"
+                                ? "bg-[var(--interaction-blue)] text-white rounded-br-none"
+                                : "bg-[var(--surface-highlight)] border border-[var(--border)] text-slate-100 rounded-bl-none"
+                                }`}
+                        >
+                            <div className="whitespace-pre-wrap leading-relaxed">{r.text}</div>
 
-                        {/* Render Calendar Events inline during chat if provided */}
-                        {r.actionResult &&
-                            Array.isArray(r.actionResult.payload) && (
-                                <div className="mt-3 bg-slate-900/50 -mx-2 p-2 rounded border border-slate-700">
-                                    <CalendarWidget events={r.actionResult.payload} />
-                                </div>
-                            )}
+                            {/* Render Calendar Events inline during chat if provided */}
+                            {r.actionResult &&
+                                Array.isArray(r.actionResult.payload) && (
+                                    <div className="mt-3 bg-slate-900/50 -mx-2 p-2 rounded border border-slate-700">
+                                        <CalendarWidget events={r.actionResult.payload} />
+                                    </div>
+                                )}
+                        </div>
                     </div>
-                </div>
-            ))}
+                );
+            })}
             {/* Spacer */}
             <div className="h-4" />
         </div>

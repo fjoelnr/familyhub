@@ -7,7 +7,7 @@ export interface ActionResult {
 }
 
 export type AgentResponse = {
-    type: 'chat' | 'action_request' | 'clarification_needed' | 'error';
+    type: 'chat' | 'action_request' | 'clarification_needed' | 'error' | 'notice';
     role: 'assistant' | 'user'; // User messages also follow this for UI consistency
     text: string;
 

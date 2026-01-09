@@ -32,9 +32,9 @@ export default function HubShell() {
 
                 {/* Right Content Area: FluidStage + Input */}
                 <main className="flex flex-col flex-1 relative min-w-0">
-                    
+
                     {/* Zone B: Fluid Stage (takes available space) */}
-                    <div className="flex-1 overflow-hidden relative">
+                    <div className="flex-1 overflow-hidden relative flex flex-col">
                         <FluidStage />
                     </div>
 

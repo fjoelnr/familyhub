@@ -14,14 +14,17 @@ export default function NavigationRail() {
 }
 
 function NavItem({ icon, active = false }: { icon: string, active?: boolean }) {
+    const disabled = !active;
     return (
         <button
             className={`
                 w-12 h-12 rounded-xl flex items-center justify-center text-xl transition-all
                 ${active
-                    ? 'bg-blue-600 text-white shadow-lg shadow-blue-900/40'
-                    : 'text-slate-400 hover:bg-slate-800 hover:text-white'}
+                    ? 'bg-blue-600 text-white shadow-lg shadow-blue-900/40 cursor-pointer'
+                    : 'text-slate-600 bg-slate-800/20 cursor-not-allowed opacity-50'}
             `}
+            disabled={disabled}
+            title={disabled ? "Noch nicht verfügbar" : ""}
         >
             {icon}
         </button>
