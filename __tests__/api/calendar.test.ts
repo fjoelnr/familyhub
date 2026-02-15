@@ -34,7 +34,7 @@ describe('Calendar API', () => {
             body: JSON.stringify(mockEventPayload)
         });
 
-        const response = await POST(req);
+        const response = await POST(req as any);
         const data = await response.json();
 
         expect(response.status).toBe(201);
@@ -48,7 +48,7 @@ describe('Calendar API', () => {
             body: JSON.stringify({ ...mockEventPayload, id: '1', title: 'Updated' })
         });
 
-        const response = await PUT(req);
+        const response = await PUT(req as any);
         const data = await response.json();
 
         expect(data.title).toBe('Updated');
@@ -59,7 +59,7 @@ describe('Calendar API', () => {
             method: 'DELETE'
         });
 
-        const response = await DELETE(req);
+        const response = await DELETE(req as any);
         const data = await response.json();
 
         expect(data.success).toBe(true);

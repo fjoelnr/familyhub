@@ -1,133 +1,72 @@
-import { NextRequest, NextResponse } from 'next/server';
-import { ShoppingItem, ShoppingList, ShoppingCreate, ShoppingItemCreate } from '@/lib/contracts/food/shopping';
+import { NextResponse } from "next/server";
+import type { ShoppingCategory } from "@/lib/contracts/food/shopping";
 
-// In-memory storage (placeholder)
-const shoppingLists: ShoppingList[] = [
+const mockShoppingList: ShoppingCategory[] = [
   {
-    id: '1',
-    name: 'Weekly Shopping',
+    category: "Gemüse",
     items: [
-      { id: '1', name: 'Milk', amount: 2, unit: 'liter', category: 'dairy', checked: false, createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() },
-      { id: '2', name: 'Bread', amount: 1, unit: 'piece', category: 'bakery', checked: true, createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() },
-      { id: '3', name: 'Apples', amount: 500, unit: 'g', category: 'produce', checked: false, createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() }
+      { id: "s1", name: "Zwiebeln", amount: 3, unit: "Stück", category: "Gemüse", checked: false },
+      { id: "s2", name: "Möhren", amount: 500, unit: "g", category: "Gemüse", checked: false },
+      { id: "s3", name: "Paprika (rot)", amount: 2, unit: "Stück", category: "Gemüse", checked: true },
+      { id: "s4", name: "Kartoffeln", amount: 1, unit: "kg", category: "Gemüse", checked: false },
+      { id: "s5", name: "Kirschtomaten", amount: 200, unit: "g", category: "Gemüse", checked: false },
     ],
-    createdAt: new Date().toISOString(),
-    updatedAt: new Date().toISOString()
-  }
+  },
+  {
+    category: "Fleisch",
+    items: [
+      { id: "s6", name: "Hackfleisch (gemischt)", amount: 400, unit: "g", category: "Fleisch", checked: false },
+    ],
+  },
+  {
+    category: "Milchprodukte",
+    items: [
+      { id: "s7", name: "Parmesan", amount: 50, unit: "g", category: "Milchprodukte", checked: false },
+      { id: "s8", name: "Butter", amount: 250, unit: "g", category: "Milchprodukte", checked: true },
+      { id: "s9", name: "Joghurt", amount: 500, unit: "g", category: "Milchprodukte", checked: false },
+      { id: "s10", name: "Quark", amount: 250, unit: "g", category: "Milchprodukte", checked: false },
+    ],
+  },
+  {
+    category: "Nudeln & Reis",
+    items: [
+      { id: "s11", name: "Spaghetti", amount: 500, unit: "g", category: "Nudeln & Reis", checked: false },
+      { id: "s12", name: "Suppennudeln", amount: 250, unit: "g", category: "Nudeln & Reis", checked: false },
+    ],
+  },
+  {
+    category: "Konserven",
+    items: [
+      { id: "s13", name: "Passierte Tomaten", amount: 500, unit: "ml", category: "Konserven", checked: false },
+      { id: "s14", name: "Tomatenmark", amount: 1, unit: "Tube", category: "Konserven", checked: true },
+      { id: "s15", name: "Gemüsebrühe", amount: 1, unit: "Packung", category: "Konserven", checked: false },
+    ],
+  },
+  {
+    category: "Obst",
+    items: [
+      { id: "s16", name: "Äpfel", amount: 4, unit: "Stück", category: "Obst", checked: false },
+      { id: "s17", name: "Gemischte Beeren", amount: 300, unit: "g", category: "Obst", checked: false },
+    ],
+  },
+  {
+    category: "Backzutaten",
+    items: [
+      { id: "s18", name: "Mehl", amount: 1, unit: "kg", category: "Backzutaten", checked: true },
+      { id: "s19", name: "Haferflocken", amount: 500, unit: "g", category: "Backzutaten", checked: false },
+      { id: "s20", name: "Honig", amount: 1, unit: "Glas", category: "Backzutaten", checked: false },
+    ],
+  },
 ];
 
 export async function GET() {
-  // TODO: Fetch from database
-  return NextResponse.json(shoppingLists);
-}
-
-export async function POST(request: NextRequest) {
   try {
-    const body = await request.json();
-    const { listId, item } = body;
-    
-    if (listId && item) {
-      // Add item to existing list
-      const list = shoppingLists.find(l => l.id === listId);
-      if (!list) {
-        return NextResponse.json({ error: 'List not found' }, { status: 404 });
-      }
-      
-      const newItem: ShoppingItem = {
-        id: Math.random().toString(36).substring(2, 11),
-        name: item.name,
-        amount: item.amount,
-        unit: item.unit,
-        category: item.category,
-        checked: false,
-        recipeId: item.recipeId,
-        createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString()
-      };
-      
-      list.items.push(newItem);
-      list.updatedAt = new Date().toISOString();
-      // TODO: Persist
-      
-      return NextResponse.json(newItem, { status: 201 });
-    }
-    
-    // Create new list
-    if (!body.name) {
-      return NextResponse.json({ error: 'Name is required' }, { status: 400 });
-    }
-    
-    const newList: ShoppingList = {
-      id: Math.random().toString(36).substring(2, 11),
-      name: body.name,
-      items: [],
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString()
-    };
-    
-    shoppingLists.push(newList);
-    // TODO: Persist
-    
-    return NextResponse.json(newList, { status: 201 });
-  } catch {
-    return NextResponse.json({ error: 'Invalid request body' }, { status: 400 });
+    return NextResponse.json(mockShoppingList);
+  } catch (error) {
+    console.error("Error fetching shopping list:", error);
+    return NextResponse.json(
+      { error: "Failed to fetch shopping list" },
+      { status: 500 }
+    );
   }
-}
-
-export async function PUT(request: NextRequest) {
-  try {
-    const body = await request.json();
-    
-    if (body.itemId && body.checked !== undefined) {
-      // Toggle item checked status
-      for (const list of shoppingLists) {
-        const item = list.items.find(i => i.id === body.itemId);
-        if (item) {
-          item.checked = body.checked;
-          item.updatedAt = new Date().toISOString();
-          list.updatedAt = new Date().toISOString();
-          // TODO: Persist
-          return NextResponse.json(item);
-        }
-      }
-      return NextResponse.json({ error: 'Item not found' }, { status: 404 });
-    }
-    
-    return NextResponse.json({ error: 'Invalid request' }, { status: 400 });
-  } catch {
-    return NextResponse.json({ error: 'Invalid request body' }, { status: 400 });
-  }
-}
-
-export async function DELETE(request: NextRequest) {
-  const { searchParams } = new URL(request.url);
-  const id = searchParams.get('id');
-  const itemId = searchParams.get('itemId');
-  
-  if (itemId) {
-    // Delete item from list
-    for (const list of shoppingLists) {
-      const index = list.items.findIndex(i => i.id === itemId);
-      if (index !== -1) {
-        list.items.splice(index, 1);
-        list.updatedAt = new Date().toISOString();
-        // TODO: Persist
-        return NextResponse.json({ success: true });
-      }
-    }
-    return NextResponse.json({ error: 'Item not found' }, { status: 404 });
-  }
-  
-  if (id) {
-    // Delete entire list
-    const index = shoppingLists.findIndex(l => l.id === id);
-    if (index === -1) {
-      return NextResponse.json({ error: 'List not found' }, { status: 404 });
-    }
-    shoppingLists.splice(index, 1);
-    // TODO: Persist
-    return NextResponse.json({ success: true });
-  }
-  
-  return NextResponse.json({ error: 'ID or itemId required' }, { status: 400 });
 }
