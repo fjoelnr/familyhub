@@ -1,13 +1,10 @@
-"use client";
+import ClientWrapper from "../components/ClientWrapper";
 
-import React from 'react';
-import { FamilyHubProvider } from '@/lib/contexts/FamilyHubContext';
-import { HubShell } from '@/components/shell/HubShell';
-
-export default function Home() {
+export default function HomePage() {
   return (
-    <FamilyHubProvider>
-      <HubShell />
-    </FamilyHubProvider>
+    <>
+      <h1>Willkommen zum Family Hub</h1>
+      <ClientWrapper />
+    </>
   );
 }
