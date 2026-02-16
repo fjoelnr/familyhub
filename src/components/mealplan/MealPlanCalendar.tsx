@@ -89,7 +89,7 @@ export default function MealPlanCalendar({ onSelectRecipe }: MealPlanCalendarPro
                     📅 Essensplan
                 </h2>
                 <span className="text-sm text-gray-400">
-                    KW {getWeekNumber(mealPlan.weekStart)}
+                    KW {getWeekNumber(mealPlan.weekStart || "")}
                 </span>
             </div>
 
@@ -114,7 +114,7 @@ export default function MealPlanCalendar({ onSelectRecipe }: MealPlanCalendarPro
                     {/* Day Headers */}
                     <div className="grid grid-cols-[100px_repeat(7,1fr)] border-b border-gray-700/30">
                         <div className="p-3" />
-                        {mealPlan.days.map((day) => {
+                        {mealPlan.days?.map((day) => {
                             const { weekday, date, isToday } = formatDayHeader(day.date);
                             return (
                                 <div
@@ -155,7 +155,7 @@ export default function MealPlanCalendar({ onSelectRecipe }: MealPlanCalendarPro
                                 </div>
 
                                 {/* Day Cells */}
-                                {mealPlan.days.map((day) => {
+                                {mealPlan.days?.map((day) => {
                                     const slot = day.slots.find((s) => s.type === slotCfg.type);
                                     const hasRecipe = slot?.recipeId && slot?.recipeTitle;
                                     const { isToday } = formatDayHeader(day.date);
@@ -194,7 +194,7 @@ export default function MealPlanCalendar({ onSelectRecipe }: MealPlanCalendarPro
 
             {/* Mobile: Stacked Day Cards */}
             <div className="lg:hidden space-y-3">
-                {mealPlan.days.map((day) => {
+                {mealPlan.days?.map((day) => {
                     const { weekday, date, isToday } = formatDayHeader(day.date);
                     const filledSlots = day.slots.filter((s) => s.recipeId);
 

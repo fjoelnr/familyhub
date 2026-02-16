@@ -87,9 +87,9 @@ export default function RecipeDetail({
         );
     }
 
-    const totalTime = recipe.prepTimeMinutes + recipe.cookTimeMinutes;
-    const stepsProgress = recipe.steps.length > 0
-        ? Math.round((completedSteps.size / recipe.steps.length) * 100)
+    const totalTime = (recipe.prepTimeMinutes || 0) + (recipe.cookTimeMinutes || 0);
+    const stepsProgress = (recipe.steps?.length || 0) > 0
+        ? Math.round((completedSteps.size / (recipe.steps?.length || 0)) * 100)
         : 0;
 
     return (
@@ -156,7 +156,7 @@ export default function RecipeDetail({
 
                 {/* Tags */}
                 <div className="flex flex-wrap gap-2 mt-4">
-                    {recipe.tags.map((tag) => (
+                    {recipe.tags?.map((tag) => (
                         <span
                             key={tag}
                             className="px-2.5 py-1 text-xs font-medium rounded-lg bg-gray-700/60 text-gray-400"
@@ -231,7 +231,7 @@ export default function RecipeDetail({
                     <div className="flex items-center justify-between mb-4">
                         <h2 className="text-lg font-semibold text-gray-100">👨‍🍳 Zubereitung</h2>
                         <span className="text-xs text-gray-500">
-                            Schritt {completedSteps.size} von {recipe.steps.length}
+                            Schritt {completedSteps.size} von {(recipe.steps?.length || 0)}
                         </span>
                     </div>
 
@@ -244,7 +244,7 @@ export default function RecipeDetail({
                     </div>
 
                     <ol className="space-y-3">
-                        {recipe.steps.map((step) => (
+                        {recipe.steps?.map((step) => (
                             <li key={step.stepNumber}>
                                 <button
                                     onClick={() => toggleStep(step.stepNumber)}

@@ -3,19 +3,29 @@ export interface ShoppingItem {
   name: string;
   amount?: number;
   unit?: string;
-  category?: string; // produce, dairy, meat, pantry, frozen, etc.
+  category?: string;
   checked: boolean;
-  recipeId?: string; // optional link to recipe
-  createdAt: string;
-  updatedAt: string;
+  recipeId?: string;
+  createdAt?: string;
+  updatedAt?: string;
 }
 
 export interface ShoppingList {
   id: string;
   name: string;
   items: ShoppingItem[];
-  createdAt: string;
-  updatedAt: string;
+  createdAt?: string;
+  updatedAt?: string;
+}
+
+export interface ShoppingCategory {
+  id?: string;
+  name?: string;
+  category?: string;
+  items: ShoppingItem[];
+  icon?: string;
+  createdAt?: string;
+  updatedAt?: string;
 }
 
 export interface ShoppingCreate {

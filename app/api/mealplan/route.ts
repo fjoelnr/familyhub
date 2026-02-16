@@ -52,6 +52,11 @@ export async function GET() {
     days[6].slots[3] = { type: "snack", recipeId: "4", recipeTitle: "Kaiserschmarrn" };
 
     const mockMealPlan: MealPlan = {
+      id: "1",
+      date: formatDate(monday),
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+      meals: [],
       weekStart: formatDate(monday),
       days,
     };

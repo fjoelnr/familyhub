@@ -6,7 +6,7 @@ import { routeIntent } from "@/lib/agents/agentRouter";
 async function run(input: string) {
     const context = getContextSnapshot();
     const intent = await classifyIntent(input, context);
-    const response = await routeIntent(intent, context, input);
+    const response = await routeIntent(intent, context);
 
     console.log("INPUT:", input);
     console.log("INTENT:", intent);

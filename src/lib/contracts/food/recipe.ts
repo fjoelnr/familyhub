@@ -3,30 +3,41 @@ export interface Recipe {
   title: string;
   description?: string;
   ingredients: Ingredient[];
-  instructions: string[];
-  prepTime?: number; // minutes
-  cookTime?: number; // minutes
+  instructions?: string[];
+  steps?: RecipeStep[];
+  prepTime?: number;
+  cookTime?: number;
+  prepTimeMinutes?: number;
+  cookTimeMinutes?: number;
   servings?: number;
-  category?: string; // breakfast, lunch, dinner, dessert, snack
+  category?: string;
   tags?: string[];
   sourceUrl?: string;
   imageUrl?: string;
-  createdAt: string;
-  updatedAt: string;
+  createdAt?: string;
+  updatedAt?: string;
 }
 
 export interface Ingredient {
   name: string;
   amount: number;
-  unit: string; // g, ml, tbsp, tsp, piece, etc.
+  unit: string;
+  category?: string;
   optional?: boolean;
+}
+
+export interface RecipeStep {
+  stepNumber: number;
+  instruction: string;
+  durationMinutes?: number;
 }
 
 export interface RecipeCreate {
   title: string;
   description?: string;
   ingredients: Ingredient[];
-  instructions: string[];
+  instructions?: string[];
+  steps?: RecipeStep[];
   prepTime?: number;
   cookTime?: number;
   servings?: number;
@@ -36,4 +47,17 @@ export interface RecipeCreate {
   imageUrl?: string;
 }
 
-export type RecipeResponse = Recipe;
+export interface RecipeUpdate {
+  title?: string;
+  description?: string;
+  ingredients?: Ingredient[];
+  instructions?: string[];
+  steps?: RecipeStep[];
+  prepTime?: number;
+  cookTime?: number;
+  servings?: number;
+  category?: string;
+  tags?: string[];
+  sourceUrl?: string;
+  imageUrl?: string;
+}

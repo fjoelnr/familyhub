@@ -186,8 +186,8 @@ export async function GET(request: Request) {
       filtered = filtered.filter(
         (r) =>
           r.title.toLowerCase().includes(search) ||
-          r.description.toLowerCase().includes(search) ||
-          r.tags.some((t) => t.toLowerCase().includes(search))
+          r.description?.toLowerCase().includes(search) ||
+          r.tags?.some((t) => t.toLowerCase().includes(search))
       );
     }
 

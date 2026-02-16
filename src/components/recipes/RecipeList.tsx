@@ -43,7 +43,7 @@ export default function RecipeList({ onSelectRecipe }: RecipeListProps) {
             });
     }, [search, selectedCategory]);
 
-    const totalTime = (r: Recipe) => r.prepTimeMinutes + r.cookTimeMinutes;
+    const totalTime = (r: Recipe) => (r.prepTimeMinutes || 0) + (r.cookTimeMinutes || 0);
 
     if (error) {
         return (
@@ -183,7 +183,7 @@ export default function RecipeList({ onSelectRecipe }: RecipeListProps) {
 
                             {/* Tags */}
                             <div className="flex flex-wrap gap-1.5 mt-3">
-                                {recipe.tags.map((tag) => (
+                                {recipe.tags?.map((tag) => (
                                     <span
                                         key={tag}
                                         className="px-2 py-0.5 text-[10px] font-medium rounded-md bg-gray-700/60 text-gray-400"
