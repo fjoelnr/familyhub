@@ -128,25 +128,26 @@ export default function ShoppingList() {
             {/* Category Groups */}
             <div className="space-y-3">
                 {categories.map((cat) => {
-                    const isCollapsed = collapsedCategories.has(cat.category);
+                    const categoryName = cat.category || cat.name || "Sonstiges";
+                    const isCollapsed = collapsedCategories.has(categoryName);
                     const catCheckedCount = cat.items.filter((item) => checkedItems.has(item.id)).length;
                     const allChecked = catCheckedCount === cat.items.length;
 
                     return (
                         <div
-                            key={cat.category}
+                            key={categoryName}
                             className={`bg-gray-800/60 backdrop-blur-sm border rounded-2xl shadow-lg shadow-black/20 overflow-hidden transition-all duration-300
                 ${allChecked ? "border-emerald-500/20" : "border-gray-700/30"}`}
                         >
                             {/* Category Header */}
                             <button
-                                onClick={() => toggleCategory(cat.category)}
+                                onClick={() => toggleCategory(categoryName)}
                                 className="w-full flex items-center justify-between p-4 hover:bg-gray-700/30 transition-colors duration-200"
                             >
                                 <div className="flex items-center gap-3">
-                                    <span className="text-xl">{categoryIcon(cat.category)}</span>
+                                    <span className="text-xl">{categoryIcon(categoryName)}</span>
                                     <span className={`font-semibold ${allChecked ? "text-gray-500" : "text-gray-200"}`}>
-                                        {cat.category}
+                                        {categoryName}
                                     </span>
                                     <span className="text-xs text-gray-500 bg-gray-700/50 px-2 py-0.5 rounded-full">
                                         {catCheckedCount}/{cat.items.length}
@@ -195,7 +196,7 @@ export default function ShoppingList() {
                                                     className={`text-xs transition-all duration-200 ${isChecked ? "text-gray-600" : "text-gray-500"
                                                         }`}
                                                 >
-                                                    {item.amount} {item.unit}
+                                                    {item.amount || ""} {item.unit || ""}
                                                 </span>
                                             </label>
                                         );
