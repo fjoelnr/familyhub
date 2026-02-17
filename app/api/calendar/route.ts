@@ -1,31 +1,34 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { CalendarSync } from '@/lib/api/calendarSync';
 
-const calendarService = new CalendarSync();
+const GATEWAY_URL = process.env.GATEWAY_CALENDAR_URL || 'http://192.168.178.30:18790';
 
 export async function GET(request: NextRequest) {
     const { searchParams } = new URL(request.url);
-    const startParam = searchParams.get('start');
-    const endParam = searchParams.get('end');
-
-    // Default to today/next 7 days if not provided
-    const start = startParam ? new Date(startParam) : new Date();
-    const end = endParam ? new Date(endParam) : new Date(Date.now() + 7 * 24 * 60 * 60 * 1000);
+    const start = searchParams.get('start') || new Date().toISOString();
+    const end = searchParams.get('end') || new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString();
 
     try {
-        const events = await calendarService.getEvents(start, end);
-        return NextResponse.json(events);
+        const res = await fetch(`${GATEWAY_URL}/api/calendar?start=${start}&end=${end}`);
+        if (!res.ok) throw new Error('Gateway error');
+        const data = await res.json();
+        return NextResponse.json(data);
     } catch (error) {
-        console.error("Calendar API Error:", error);
-        return NextResponse.json({ error: 'Failed to fetch events' }, { status: 500 });
+        console.error("Calendar Gateway Error:", error);
+        return NextResponse.json({ error: 'Failed to fetch events from gateway' }, { status: 500 });
     }
 }
 
 export async function POST(request: NextRequest) {
     try {
         const body = await request.json();
-        const newEvent = await calendarService.createEvent(body);
-        return NextResponse.json(newEvent, { status: 201 });
+        const res = await fetch(`${GATEWAY_URL}/api/calendar`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(body)
+        });
+        if (!res.ok) throw new Error('Gateway error');
+        const data = await res.json();
+        return NextResponse.json(data, { status: 201 });
     } catch (error) {
         console.error("Calendar Create Error:", error);
         return NextResponse.json({ error: 'Failed to create event' }, { status: 500 });
@@ -35,12 +38,16 @@ export async function POST(request: NextRequest) {
 export async function PUT(request: NextRequest) {
     try {
         const body = await request.json();
-        if (!body.id) return NextResponse.json({ error: 'ID required' }, { status: 400 });
-        
-        const updatedEvent = await calendarService.updateEvent(body.id, body);
-        return NextResponse.json(updatedEvent);
+        const res = await fetch(`${GATEWAY_URL}/api/calendar`, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(body)
+        });
+        if (!res.ok) throw new Error('Gateway error');
+        const data = await res.json();
+        return NextResponse.json(data);
     } catch (error) {
-         console.error("Calendar Update Error:", error);
+        console.error("Calendar Update Error:", error);
         return NextResponse.json({ error: 'Failed to update event' }, { status: 500 });
     }
 }
@@ -48,14 +55,22 @@ export async function PUT(request: NextRequest) {
 export async function DELETE(request: NextRequest) {
     const { searchParams } = new URL(request.url);
     const id = searchParams.get('id');
+    const calendarId = searchParams.get('calendarId');
 
-    if (!id) return NextResponse.json({ error: 'ID required' }, { status: 400 });
+    if (!id || !calendarId) {
+        return NextResponse.json({ error: 'ID and calendarId required' }, { status: 400 });
+    }
 
     try {
-        await calendarService.deleteEvent(id);
+        const res = await fetch(`${GATEWAY_URL}/api/calendar`, {
+            method: 'DELETE',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ eventId: id, calendarId })
+        });
+        if (!res.ok) throw new Error('Gateway error');
         return NextResponse.json({ success: true });
     } catch (error) {
-         console.error("Calendar Delete Error:", error);
+        console.error("Calendar Delete Error:", error);
         return NextResponse.json({ error: 'Failed to delete event' }, { status: 500 });
     }
 }
