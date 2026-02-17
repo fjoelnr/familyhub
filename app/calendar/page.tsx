@@ -1,7 +1,6 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import Link from 'next/link';
 import CalendarMonthView from '@/components/widgets/CalendarMonthView';
 
 interface CalendarEvent {
@@ -39,21 +38,9 @@ export default function CalendarPage() {
         fetchEvents();
     }, [currentDate]);
 
-    const monthNames = ['Januar', 'Februar', 'März', 'April', 'Mai', 'Juni', 
-                        'Juli', 'August', 'September', 'Oktober', 'November', 'Dezember'];
-
     return (
-        <div className="min-h-screen bg-gradient-to-br from-stone-100 to-stone-200 p-6">
-            <div className="max-w-7xl mx-auto mb-6">
-                <Link 
-                    href="/" 
-                    className="inline-flex items-center gap-2 px-4 py-2 bg-white/60 backdrop-blur-sm rounded-xl text-stone-700 hover:bg-white/80 transition-colors"
-                >
-                    ← Zurück
-                </Link>
-            </div>
-
-            <div className="max-w-7xl mx-auto">
+        <div className="p-6 h-full">
+            <div className="max-w-7xl mx-auto h-full">
                 <h1 className="text-3xl font-bold text-stone-800 mb-6">📅 Kalender</h1>
                 
                 {loading && <p className="text-stone-600">Lade Termine...</p>}
