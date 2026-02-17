@@ -1,66 +1,145 @@
 "use client";
 import React from 'react';
-import { mockEvents } from '@/lib/data/mockCalendar';
 
-export default function CalendarMonthView() {
-    // Determine "Today" (mocked as 2026-01-08)
-    const todayStr = "2026-01-08";
+interface CalendarEvent {
+    id: string;
+    title: string;
+    start: string;
+    end?: string;
+    allDay?: boolean;
+    color?: string;
+}
 
-    // Helper to check if a date string matches a day in grid
-    const getEventsForDay = (dateStr: string) => {
-        return mockEvents.filter(e => e.date === dateStr);
+interface CalendarMonthViewProps {
+    events?: CalendarEvent[];
+    currentDate?: Date;
+    onMonthChange?: (date: Date) => void;
+}
+
+export default function CalendarMonthView({ 
+    events = [], 
+    currentDate = new Date(),
+    onMonthChange 
+}: CalendarMonthViewProps) {
+    const today = new Date();
+    const year = currentDate.getFullYear();
+    const month = currentDate.getMonth();
+    
+    const monthNames = ['Januar', 'Februar', 'März', 'April', 'Mai', 'Juni', 
+                        'Juli', 'August', 'September', 'Oktober', 'November', 'Dezember'];
+    
+    const firstDayOfMonth = new Date(year, month, 1);
+    const lastDayOfMonth = new Date(year, month + 1, 0);
+    const startingDayOfWeek = firstDayOfMonth.getDay() === 0 ? 6 : firstDayOfMonth.getDay() - 1;
+    const daysInMonth = lastDayOfMonth.getDate();
+    
+    const calendarDays: { date: number; month: number; year: number; isCurrentMonth: boolean }[] = [];
+    
+    const prevMonthLastDay = new Date(year, month, 0).getDate();
+    for (let i = startingDayOfWeek - 1; i >= 0; i--) {
+        calendarDays.push({
+            date: prevMonthLastDay - i,
+            month: month - 1,
+            year: month === 0 ? year - 1 : year,
+            isCurrentMonth: false
+        });
+    }
+    
+    for (let i = 1; i <= daysInMonth; i++) {
+        calendarDays.push({
+            date: i,
+            month: month,
+            year: year,
+            isCurrentMonth: true
+        });
+    }
+    
+    const remainingDays = 42 - calendarDays.length;
+    for (let i = 1; i <= remainingDays; i++) {
+        calendarDays.push({
+            date: i,
+            month: month + 1,
+            year: month === 11 ? year + 1 : year,
+            isCurrentMonth: false
+        });
+    }
+
+    const getEventsForDay = (day: number, monthIdx: number, yearNum: number) => {
+        const dateStr = `${yearNum}-${String(monthIdx + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+        return events.filter(e => {
+            const eventDate = e.start.split('T')[0];
+            return eventDate === dateStr;
+        });
     };
 
-    // Generate Calendar Grid (Jan 2026)
-    // 1st Jan 2026 is Thursday. 
-    // Start grid from Mon Dec 29 2025? No, let's keep it simple fixed grid like before but slightly aligned.
-    // Jan 2026: 
-    // Mo Tu We Th Fr Sa Su
-    //           1  2  3  4
-    //  5  6  7  8  9 10 11
-    // ...
+    const isToday = (day: number, monthIdx: number, yearNum: number) => {
+        return day === today.getDate() && 
+               monthIdx === today.getMonth() && 
+               yearNum === today.getFullYear();
+    };
 
-    // We will generate 35 days (5 rows) starting from Dec 29 to Jan 31 + 1 (Feb 1)
-    // Actually let's just use the previous logic but map it correctly
-    const days = Array.from({ length: 35 }, (_, i) => {
-        // Offset: Jan 1 is index 3 (0=Mon, 1=Tue, 2=Wed, 3=Thu)
-        // So index 0 should be Dec 29 (-2)
-        const dayOffset = i - 2;
-        const isJan = dayOffset >= 1 && dayOffset <= 31;
-        const dateNum = isJan ? dayOffset : (dayOffset <= 0 ? 31 + dayOffset : dayOffset - 31);
+    const getWeekNumber = (date: Date) => {
+        const d = new Date(Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()));
+        const dayNum = d.getUTCDay() || 7;
+        d.setUTCDate(d.getUTCDate() + 4 - dayNum);
+        const yearStart = new Date(Date.UTC(d.getUTCFullYear(), 0, 1));
+        return Math.ceil((((d.getTime() - yearStart.getTime()) / 86400000) + 1) / 7);
+    };
 
-        // Construct basic date string for matching (very naive for this mock)
-        // If > 0 it is Jan 2026
-        const simpleDateStr = isJan
-            ? `2026-01-${dateNum.toString().padStart(2, '0')}`
-            : `2025-12-${dateNum.toString().padStart(2, '0')}`; // Ignore Feb for now
+    const handlePrevMonth = () => {
+        if (onMonthChange) {
+            onMonthChange(new Date(year, month - 1, 1));
+        }
+    };
 
-        const isToday = simpleDateStr === todayStr;
+    const handleNextMonth = () => {
+        if (onMonthChange) {
+            onMonthChange(new Date(year, month + 1, 1));
+        }
+    };
 
-        return {
-            date: dateNum,
-            fullDate: simpleDateStr,
-            isCurrentMonth: isJan,
-            isToday: isToday,
-            events: getEventsForDay(simpleDateStr)
+    const getColorClass = (color?: string) => {
+        if (!color) return 'bg-blue-500';
+        const colors: Record<string, string> = {
+            'red': 'bg-red-500',
+            'blue': 'bg-blue-500',
+            'green': 'bg-green-500',
+            'yellow': 'bg-yellow-500',
+            'purple': 'bg-purple-500',
+            'orange': 'bg-orange-500',
+            'pink': 'bg-pink-500',
+            'cyan': 'bg-cyan-500'
         };
-    });
+        return colors[color.toLowerCase()] || 'bg-blue-500';
+    };
 
     return (
         <div className="flex flex-col h-full bg-[var(--surface-dark)] rounded-xl border border-[var(--border)] overflow-hidden shadow-sm">
-            {/* Header */}
             <div className="flex items-center justify-between p-4 border-b border-[var(--border)] bg-[var(--surface-highlight)]/20">
                 <div className="flex items-baseline gap-2">
-                    <h2 className="text-xl font-semibold text-[var(--text-primary)]">Januar 2026</h2>
-                    <span className="text-sm text-[var(--text-secondary)] font-medium">KW 2</span>
+                    <h2 className="text-xl font-semibold text-[var(--text-primary)]">
+                        {monthNames[month]} {year}
+                    </h2>
+                    <span className="text-sm text-[var(--text-secondary)] font-medium">
+                        KW {getWeekNumber(new Date(year, month, 15))}
+                    </span>
                 </div>
                 <div className="flex gap-2">
-                    <button className="p-1 hover:bg-slate-700 rounded text-slate-400">❮</button>
-                    <button className="p-1 hover:bg-slate-700 rounded text-slate-400">❯</button>
+                    <button 
+                        onClick={handlePrevMonth}
+                        className="p-1 hover:bg-slate-700 rounded text-slate-400"
+                    >
+                        ❮
+                    </button>
+                    <button 
+                        onClick={handleNextMonth}
+                        className="p-1 hover:bg-slate-700 rounded text-slate-400"
+                    >
+                        ❯
+                    </button>
                 </div>
             </div>
 
-            {/* Grid Header */}
             <div className="grid grid-cols-7 border-b border-[var(--border)] text-xs text-[var(--text-secondary)] font-medium uppercase tracking-wider text-center py-2 bg-[var(--surface-dark)]">
                 <div>Mo</div>
                 <div>Di</div>
@@ -71,41 +150,49 @@ export default function CalendarMonthView() {
                 <div>So</div>
             </div>
 
-            {/* Calendar Grid */}
-            <div className="flex-1 grid grid-cols-7 grid-rows-5 bg-[var(--border)] gap-px">
-                {days.map((d, idx) => (
-                    <div
-                        key={idx}
-                        className={`
-                            relative bg-[var(--surface-dark)] p-2 min-h-[80px] hover:bg-[var(--surface-highlight)]/10 transition-colors
-                            ${!d.isCurrentMonth ? 'opacity-40' : ''}
-                            ${d.isToday ? 'bg-[var(--surface-highlight)]/20' : ''}
-                        `}
-                    >
-                        <div className="flex justify-between items-start mb-1">
-                            <span className={`
-                                text-sm font-medium 
-                                ${d.isToday
-                                    ? 'text-[var(--primary)] bg-[var(--primary)]/10 px-1.5 rounded-full'
-                                    : 'text-[var(--text-secondary)]'}
-                            `}>
-                                {d.date}
-                            </span>
-                        </div>
-
-                        <div className="space-y-1">
-                            {d.events.map((e, i) => (
-                                <div key={i} className={`
-                                    text-[10px] px-1.5 py-0.5 rounded text-white truncate font-medium 
-                                    ${e.color} shadow-sm opacity-90 hover:opacity-100
-                                    ${e.contextTag ? 'ring-2 ring-offset-1 ring-offset-[#1E1E2E] ring-orange-400/70 z-10' : ''}
+            <div className="flex-1 grid grid-cols-7 grid-rows-6 bg-[var(--border)] gap-px">
+                {calendarDays.map((d, idx) => {
+                    const dayEvents = getEventsForDay(d.date, d.month, d.year);
+                    const todayCheck = isToday(d.date, d.month, d.year);
+                    
+                    return (
+                        <div
+                            key={idx}
+                            className={`
+                                relative bg-[var(--surface-dark)] p-2 min-h-[80px] hover:bg-[var(--surface-highlight)]/10 transition-colors
+                                ${!d.isCurrentMonth ? 'opacity-40' : ''}
+                                ${todayCheck ? 'bg-[var(--surface-highlight)]/20' : ''}
+                            `}
+                        >
+                            <div className="flex justify-between items-start mb-1">
+                                <span className={`
+                                    text-sm font-medium 
+                                    ${todayCheck
+                                        ? 'text-[var(--primary)] bg-[var(--primary)]/10 px-1.5 rounded-full'
+                                        : 'text-[var(--text-secondary)]'}
                                 `}>
-                                    {e.title}
-                                </div>
-                            ))}
+                                    {d.date}
+                                </span>
+                            </div>
+
+                            <div className="space-y-1">
+                                {dayEvents.slice(0, 3).map((e, i) => (
+                                    <div 
+                                        key={i} 
+                                        className={`text-[10px] px-1.5 py-0.5 rounded text-white truncate font-medium ${getColorClass(e.color)} shadow-sm opacity-90 hover:opacity-100`}
+                                    >
+                                        {e.title}
+                                    </div>
+                                ))}
+                                {dayEvents.length > 3 && (
+                                    <div className="text-[10px] text-gray-400">
+                                        +{dayEvents.length - 3} mehr
+                                    </div>
+                                )}
+                            </div>
                         </div>
-                    </div>
-                ))}
+                    );
+                })}
             </div>
         </div>
     );

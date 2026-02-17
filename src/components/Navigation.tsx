@@ -8,9 +8,10 @@ export default function Navigation() {
   
   const links = [
     { href: '/', label: '🏠 Dashboard', icon: '🏠' },
+    { href: '/calendar', label: '📅 Kalender', icon: '📅' },
     { href: '/shopping', label: '🛒 Einkaufen', icon: '🛒' },
     { href: '/recipes', label: '📖 Rezepte', icon: '📖' },
-    { href: '/mealplan', label: '📅 Essen', icon: '📅' },
+    { href: '/mealplan', label: '🍽️ Essen', icon: '🍽️' },
   ];
 
   return (
