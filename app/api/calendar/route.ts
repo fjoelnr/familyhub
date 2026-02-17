@@ -4,8 +4,16 @@ const GATEWAY_URL = process.env.GATEWAY_CALENDAR_URL || 'http://192.168.178.30:1
 
 export async function GET(request: NextRequest) {
     const { searchParams } = new URL(request.url);
-    const start = searchParams.get('start') || new Date().toISOString();
-    const end = searchParams.get('end') || new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString();
+    const startParam = searchParams.get('start');
+    const endParam = searchParams.get('end');
+
+    // Format dates as RFC3339 for Google Calendar API
+    const start = startParam 
+        ? new Date(startParam).toISOString()
+        : new Date().toISOString();
+    const end = endParam 
+        ? new Date(endParam).toISOString()
+        : new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString();
 
     try {
         const res = await fetch(`${GATEWAY_URL}/api/calendar?start=${start}&end=${end}`);
