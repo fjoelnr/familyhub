@@ -1,6 +1,6 @@
 'use client';
-import MealPlan from '@/components/mealplan/MealPlan';
+import MealPlanCalendar from '@/components/mealplan/MealPlanCalendar';
 
 export default function MealPlanPage() {
-  return <MealPlan />;
+  return <MealPlanCalendar />;
 }

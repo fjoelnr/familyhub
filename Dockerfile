@@ -2,8 +2,8 @@ FROM node:22-alpine
 
 WORKDIR /app
 
-COPY package*.json ./
-COPY .next ./.next
+COPY .next/standalone ./
+COPY .next/static .next/static
 COPY public ./public
 COPY .env.local ./
 
