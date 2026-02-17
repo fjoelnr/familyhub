@@ -1,0 +1,20 @@
+/**
+ * LEGACY – inactive
+ * Replaced by n8n pipeline as of 2025-12-20
+ * Do not import in active runtime
+ */
+import { getContextSnapshot } from "@/lib/context/getContextSnapshot";
+import { classifyIntent } from "../../ai/intentClassifier";
+import { routeIntent } from "../../agents/agentRouter";
+
+async function run(input: string) {
+    const context = getContextSnapshot();
+    const intent = await classifyIntent(input, context);
+    const response = await routeIntent(intent, context, input);
+
+    console.log("INPUT:", input);
+    console.log("INTENT:", intent);
+    console.log("RESPONSE:", response);
+}
+
+run("Add dentist tomorrow at 10am");

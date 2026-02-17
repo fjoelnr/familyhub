@@ -1,0 +1,183 @@
+{
+    "name": "WF-200 Calendar Diagnostic",
+    "nodes": [
+        {
+            "parameters": {
+                "httpMethod": "POST",
+                "path": "diagnostic/calendar",
+                "responseMode": "responseNode",
+                "options": {}
+            },
+            "id": "1",
+            "name": "Webhook",
+            "type": "n8n-nodes-base.webhook",
+            "typeVersion": 1,
+            "position": [
+                220,
+                300
+            ]
+        },
+        {
+            "parameters": {
+                "method": "PUT",
+                "url": "={{ 'http://192.168.178.99/dav.php/calendars/fjoelnir/valur/diag-' + $json.requestId + '.ics' }}",
+                "authentication": "genericCredentialType",
+                "genericAuthType": "httpBasicAuth",
+                "sendBinaryData": false,
+                "options": {
+                    "response": {
+                        "fullResponse": true
+                    }
+                },
+                "headerParametersUi": {
+                    "parameter": [
+                        {
+                            "name": "Content-Type",
+                            "value": "text/calendar; charset=utf-8"
+                        },
+                        {
+                            "name": "If-None-Match",
+                            "value": "*"
+                        }
+                    ]
+                },
+                "body": "={{ 'BEGIN:VCALENDAR\\nVERSION:2.0\\nPRODID:-//FamilyHub//Diagnostic//EN\\nBEGIN:VEVENT\\nUID:diag-' + $json.requestId + '\\nDTSTAMP:20240101T000000Z\\nDTSTART:' + $now.plus(1, 'minutes').format('yyyyMMdd\\'T\\'HHmmss') + '\\nDURATION:PT15M\\nSUMMARY:FamilyHub Diagnostic ' + $json.requestId + '\\nDESCRIPTION:Diagnostic test event created by n8n WF-200\\nEND:VEVENT\\nEND:VCALENDAR' }}"
+            },
+            "id": "2",
+            "name": "Create Event",
+            "type": "n8n-nodes-base.httpRequest",
+            "typeVersion": 3,
+            "position": [
+                440,
+                300
+            ],
+            "credentials": {
+                "httpBasicAuth": {
+                    "id": "baikal_creds",
+                    "name": "Baikal Credentials"
+                }
+            },
+            "onError": "continueErrorOutput"
+        },
+        {
+            "parameters": {
+                "method": "POST",
+                "url": "http://192.168.178.99/dav.php/calendars/fjoelnir/valur/",
+                "authentication": "genericCredentialType",
+                "genericAuthType": "httpBasicAuth",
+                "sendBinaryData": false,
+                "options": {
+                    "response": {
+                        "fullResponse": true
+                    }
+                },
+                "headerParametersUi": {
+                    "parameter": [
+                        {
+                            "name": "Content-Type",
+                            "value": "application/xml; charset=utf-8"
+                        },
+                        {
+                            "name": "Depth",
+                            "value": "1"
+                        },
+                        {
+                            "name": "X-HTTP-Method-Override",
+                            "value": "REPORT"
+                        }
+                    ]
+                },
+                "body": "={{ '<c:calendar-query xmlns:d=\"DAV:\" xmlns:c=\"urn:ietf:params:xml:ns:caldav\"><d:prop><d:getetag /><c:calendar-data /></d:prop><c:filter><c:comp-filter name=\"VCALENDAR\"><c:comp-filter name=\"VEVENT\"><c:time-range start=\"' + $today.format('yyyyMMdd\\'T\\'000000\\'Z\\'') + '\" end=\"' + $today.format('yyyyMMdd\\'T\\'235959\\'Z\\'') + '\"/></c:comp-filter></c:comp-filter></c:filter></c:calendar-query>' }}"
+            },
+            "id": "3",
+            "name": "Read Events",
+            "type": "n8n-nodes-base.httpRequest",
+            "typeVersion": 3,
+            "position": [
+                660,
+                300
+            ],
+            "credentials": {
+                "httpBasicAuth": {
+                    "id": "baikal_creds",
+                    "name": "Baikal Credentials"
+                }
+            },
+            "onError": "continueErrorOutput"
+        },
+        {
+            "parameters": {
+                "jsCode": "const reqId = $('Webhook').first().json.body.requestId;\n\n// Get Create Step Results (using continueErrorOutput means we always get a result)\nconst createItem = $('Create Event').first();\nconst createStatus = createItem.json.statusCode || createItem.json.status || 0;\nconst createError = createItem.error ? createItem.error.message : null;\n\n// Get Read Step Results\nconst readItem = items[0];\nconst readStatus = readItem.json.statusCode || readItem.json.status || 0;\nconst readBody = readItem.json.data || readItem.json.message || ''; // Data if success, message if error\n\n// Strict Diagnostic Logic: No assumptions, just facts.\nlet overallStatus = 'PASS';\nlet reason = 'Write and Read executed cleanly';\n\n// 1. Check Write\nif (createStatus !== 201 && createStatus !== 204 && createStatus !== 200) {\n  overallStatus = 'FAIL';\n  reason = `Write failed with HTTP ${createStatus}: ${createError || 'Unknown error'}`;\n}\n\n// 2. Check Read (only if Write succeeded or we want deep diagnostics)\nif (overallStatus === 'PASS' && (readStatus !== 207 && readStatus !== 200)) {\n  overallStatus = 'FAIL';\n  reason = `Read failed with HTTP ${readStatus}: ${readBody}`;\n}\n\nreturn [{\n  json: {\n    status: overallStatus,\n    reason: reason,\n    diagnostic: {\n      requestId: reqId,\n      step1_write: {\n        status: createStatus,\n        error: createError\n      },\n      step2_read: {\n        status: readStatus,\n        raw_body_snippet: typeof readBody === 'string' ? readBody.substring(0, 500) : 'Non-string body'\n      }\n    },\n    meta: {\n      timestamp: new Date().toISOString(),\n      mode: 'strict_raw'\n    }\n  }\n}];"
+            },
+            "id": "4",
+            "name": "Format Report",
+            "type": "n8n-nodes-base.code",
+            "typeVersion": 2,
+            "position": [
+                880,
+                300
+            ]
+        },
+        {
+            "parameters": {
+                "respondWith": "json",
+                "responseBody": "={{ $json }}",
+                "options": {}
+            },
+            "id": "5",
+            "name": "Respond",
+            "type": "n8n-nodes-base.respondToWebhook",
+            "typeVersion": 1,
+            "position": [
+                1100,
+                300
+            ]
+        }
+    ],
+    "connections": {
+        "Webhook": {
+            "main": [
+                [
+                    {
+                        "node": "Create Event",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Create Event": {
+            "main": [
+                [
+                    {
+                        "node": "Read Events",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Read Events": {
+            "main": [
+                [
+                    {
+                        "node": "Format Report",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Format Report": {
+            "main": [
+                [
+                    {
+                        "node": "Respond",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        }
+    }
+}

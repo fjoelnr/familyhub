@@ -9,6 +9,27 @@ export interface Message {
 
 export type ChatProviderName = "ollama" | "openai" | "mock";
 
+export type IntentType =
+    | "smalltalk"
+    | "information"
+    | "planning"
+    | "calendar_action"
+    | "explanation"
+    | "unknown";
+
+export interface IntentResult {
+    intent: IntentType;
+    confidence: number;
+    entities?: {
+        date?: string;
+        person?: string;
+        topic?: string;
+        [key: string]: string | undefined;
+    };
+    rawInput: string;
+}
+
+
 export interface ChatResponse {
     text: string;
     provider: ChatProviderName;

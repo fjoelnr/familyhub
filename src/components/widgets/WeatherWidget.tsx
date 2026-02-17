@@ -3,7 +3,7 @@ import { WeatherData } from "@/lib/contracts/weather";
 export default function WeatherWidget({
     data,
 }: {
-    data: { locationName: string; temperature: number; condition: string } | null;
+    data: WeatherData | null;
 }) {
     if (!data) {
         return <div className="text-center">Lade Wetter…</div>;

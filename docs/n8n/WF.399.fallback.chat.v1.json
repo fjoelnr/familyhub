@@ -1,0 +1,77 @@
+{
+    "name": "WF.399.fallback.chat.v1",
+    "nodes": [
+        {
+            "parameters": {},
+            "id": "trigger",
+            "name": "Execute Workflow Trigger",
+            "type": "n8n-nodes-base.executeWorkflowTrigger",
+            "typeVersion": 1,
+            "position": [
+                250,
+                300
+            ]
+        },
+        {
+            "parameters": {
+                "model": "llama3:latest",
+                "options": {
+                    "temperature": 0.7,
+                    "system": "You are a helpful family assistant. You reply politely and briefly to the user's message."
+                },
+                "prompt": "={{ $json.message }}"
+            },
+            "id": "ollama",
+            "name": "Ollama Chat",
+            "type": "n8n-nodes-base.ollama",
+            "typeVersion": 1,
+            "position": [
+                470,
+                300
+            ],
+            "credentials": {
+                "ollamaApi": {
+                    "id": "OLLAMA_CREDENTIAL_ID",
+                    "name": "Ollama account"
+                }
+            }
+        },
+        {
+            "parameters": {
+                "jsCode": "const input = $('Execute Workflow Trigger').first().json;\nconst response = items[0].json.response;\n\nreturn [{\n  json: {\n    status: \"ok\",\n    reply: response,\n    actionResult: {\n      type: \"none\",\n      payload: {}\n    },\n    meta: {\n      workflow: \"WF.399.fallback.chat.v1\",\n      confidence: 1.0\n    }\n  }\n}];"
+            },
+            "id": "format",
+            "name": "Format Output",
+            "type": "n8n-nodes-base.code",
+            "typeVersion": 2,
+            "position": [
+                690,
+                300
+            ]
+        }
+    ],
+    "connections": {
+        "Execute Workflow Trigger": {
+            "main": [
+                [
+                    {
+                        "node": "Ollama Chat",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Ollama Chat": {
+            "main": [
+                [
+                    {
+                        "node": "Format Output",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        }
+    }
+}

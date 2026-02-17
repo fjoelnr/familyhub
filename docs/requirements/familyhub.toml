@@ -1,0 +1,289 @@
+# =========================================================
+# FamilyHub – System Requirements
+# Living Requirements Document
+# =========================================================
+
+[meta]
+system = "FamilyHub"
+owner = "Valur"
+status = "active"
+philosophy = "Calm Intelligence"
+last_updated = "2025-12-19"
+
+# =========================================================
+# Governance
+# =========================================================
+
+[GOVERNANCE]
+id = "GOV-001"
+description = """
+FamilyHub is developed requirements-driven.
+No feature, agent, or workflow may be added without
+explicit requirement linkage and architectural compliance.
+"""
+
+rules = [
+  "No loss of existing functionality to satisfy linters or tooling",
+  "Functional stability has priority over code cleanliness",
+  "All PRs must reference at least one Requirement ID",
+  "Agents must preserve architectural intent",
+  "Side effects must be offloaded where specified"
+]
+
+# =========================================================
+# System Requirements (SR)
+# =========================================================
+
+[[SR]]
+id = "SR-001"
+title = "Central Context Awareness"
+description = "System shall maintain global context (time, day phase, holidays, mode)."
+status = "approved"
+
+[[SR]]
+id = "SR-004"
+title = "Separation of Concerns"
+description = """
+FamilyHub acts as Brain (intent, context, UI).
+Execution-heavy or side-effecting logic must not live in FamilyHub.
+"""
+status = "approved"
+
+[[SR]]
+id = "SR-005"
+title = "Offloading to n8n"
+description = """
+All side-effecting operations (calendar writes, reminders, retries)
+must be executed via n8n workflows.
+"""
+status = "approved"
+
+# =========================================================
+# Non-Functional Requirements (NFR)
+# =========================================================
+
+[[NFR]]
+id = "NFR-001"
+title = "Functional Stability"
+description = "System must run without hydration errors or runtime crashes."
+status = "approved"
+
+[[NFR]]
+id = "NFR-002"
+title = "Graceful Degradation"
+description = "If subsystems fail, UI and core interaction remain usable."
+status = "approved"
+
+# =========================================================
+# UI Requirements (UR)
+# =========================================================
+
+[[UR]]
+id = "UR-001"
+title = "Four-Zone Layout"
+description = "UI shall consist of AmbientCanvas, StatusRail, FluidStage, InputDeck."
+status = "approved"
+
+[[UR]]
+id = "UR-004"
+title = "Immediate User Feedback"
+description = "User input must appear immediately, even before agent response."
+status = "approved"
+
+[[UR]]
+id = "UR-005"
+title = "UI Modes"
+description = "System shall support Calm, Nerdy, and Manga visual modes."
+status = "approved"
+
+[[UR]]
+id = "UR-007"
+title = "Return to Calm"
+description = "After inactivity, UI returns to ambient state."
+status = "approved"
+
+# =========================================================
+# Functional Requirements (FR) – Core
+# =========================================================
+
+[[FR]]
+id = "FR-CHAT-001"
+title = "Conversational Interface"
+description = "Users can interact via natural language chat."
+status = "approved"
+
+[[FR]]
+id = "FR-INTENT-001"
+title = "Intent Classification"
+description = "System classifies user intent before action."
+status = "approved"
+
+# =========================================================
+# Functional Requirements (FR) – Calendar
+# =========================================================
+
+[[FR]]
+id = "FR-CAL-001"
+title = "Read Calendar Events"
+description = "System can list upcoming calendar events."
+status = "approved"
+
+[[FR]]
+id = "FR-CAL-002"
+title = "Create Calendar Events"
+description = "System can propose calendar events with confirmation."
+status = "approved"
+
+# =========================================================
+# n8n Governance
+# =========================================================
+
+[N8N.GOVERNANCE]
+id = "N8N-GOV-001"
+description = """
+n8n is the exclusive execution layer for side-effecting actions.
+FamilyHub may only trigger workflows via defined APIs.
+"""
+status = "approved"
+
+# =========================================================
+# Functional Requirements (FR) – n8n Integration
+# =========================================================
+
+[[FR]]
+id = "FR-N8N-001"
+title = "Central n8n Gateway"
+description = "FamilyHub communicates with n8n via a single gateway webhook."
+status = "approved"
+trace.to = ["SR-004", "SR-005"]
+
+[[FR]]
+id = "FR-N8N-002"
+title = "Workflow Identification"
+description = "Each request includes a workflowId."
+status = "approved"
+
+[[FR]]
+id = "FR-N8N-010"
+title = "Calendar Writes via n8n"
+description = "Calendar create/update/delete must be executed by n8n."
+status = "approved"
+trace.to = ["FR-CAL-002", "SR-005"]
+
+[[FR]]
+id = "FR-N8N-020"
+title = "Reminder Scheduling"
+description = "Reminders are scheduled and executed via n8n."
+status = "approved"
+
+# =========================================================
+# Non-Functional Requirements – n8n
+# =========================================================
+
+[[NFR]]
+id = "NFR-N8N-001"
+title = "Idempotent Workflows"
+description = "n8n workflows must be idempotent."
+status = "approved"
+
+[[NFR]]
+id = "NFR-N8N-002"
+title = "Retry Handling"
+description = "Retries and backoff are handled by n8n."
+status = "approved"
+
+[[NFR]]
+id = "NFR-N8N-003"
+title = "Async Execution"
+description = "FamilyHub must not block on long-running workflows."
+status = "approved"
+
+# =========================================================
+# Verification Requirements (VER)
+# =========================================================
+
+[[VER]]
+id = "VER-001"
+title = "Automated Tests"
+description = "All core functionality must be covered by tests."
+status = "required"
+
+[[VER]]
+id = "VER-N8N-001"
+title = "Workflow Verification"
+description = "Each n8n workflow must be verifiable via test payloads."
+status = "required"
+
+# =========================
+# Phase E – Observability
+# =========================
+
+[phase.E]
+id = "PH-E"
+title = "Observability & MCP Integration"
+status = "planned"
+scope = "Read-only inspection and diagnostics"
+
+[FR-E-001]
+id = "FR-E-001"
+title = "MCP-based n8n Observability"
+description = """
+FamilyHub shall support a read-only MCP integration to inspect n8n workflows,
+executions, inputs, outputs, and error states for debugging and analysis.
+"""
+priority = "high"
+status = "planned"
+constraints = [
+  "Read-only access",
+  "No mutation of workflows",
+  "No execution triggering"
+]
+
+[FR-E-002]
+id = "FR-E-002"
+title = "Execution-Level Diagnostics"
+description = """
+The system shall allow inspection of individual n8n workflow executions,
+including requestId correlation, timing, success/error state, and payload flow.
+"""
+priority = "high"
+status = "planned"
+
+[FR-E-003]
+id = "FR-E-003"
+title = "Request Correlation"
+description = """
+All observability views must correlate FamilyHub requestId with n8n executionId
+to enable deterministic debugging across system boundaries.
+"""
+priority = "high"
+status = "planned"
+
+[NFR-E-001]
+id = "NFR-E-001"
+title = "Non-Intrusive Observability"
+description = """
+Observability tooling must not affect runtime behavior, performance,
+or stability of FamilyHub or n8n workflows.
+"""
+priority = "critical"
+status = "planned"
+
+[SR-E-001]
+id = "SR-E-001"
+title = "Strict Separation of Control"
+description = """
+MCP integration must never allow write, update, delete, or trigger operations
+against n8n. Observability is strictly passive.
+"""
+priority = "critical"
+status = "planned"
+
+
+# =========================================================
+# Notes
+# =========================================================
+
+[notes]
+living_document = true
+change_policy = "Extend, never silently remove requirements"

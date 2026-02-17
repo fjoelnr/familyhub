@@ -1,128 +1,116 @@
-import React from 'react';
-import { useFamilyHub } from '../../lib/contexts/FamilyHubContext';
-import { ActionConfirmationCard } from '../widgets/ActionConfirmationCard';
-// Mock imports if real widgets aren't ready to be properly styled for this context yet
-// For now, we'll keep the placeholders but structured better.
+"use client";
 
-export const FluidStage: React.FC = () => {
-    const { context, isInteracting, conversationHistory, latestAgentResponse, addAgentResponse, setInteracting } = useFamilyHub();
+import { useAgentRuntime } from "@/lib/contexts/AgentRuntimeContext";
+// import { useFamilyHub } from "@/lib/contexts/FamilyHubContext";
 
-    const handleConfirm = () => {
-        addAgentResponse({
+// Zones & Widgets
+import AmbientCanvas from "@/components/zones/AmbientCanvas";
+import CalendarMonthView from "@/components/widgets/CalendarMonthView";
+import TaskListView from "@/components/widgets/TaskListView";
+import ActivityFeed from "@/components/widgets/ActivityFeed";
+import CalendarWidget from "@/components/widgets/CalendarWidget"; // Keeping for chat bubbling if needed
+import ContextCard from "@/components/widgets/ContextCard";
+import { mockContextCards } from "@/lib/data/mockContext";
+
+// --- MAIN LAYOUT ---
+export default function FluidStage() {
+    const { state, uiState, pushResponse } = useAgentRuntime();
+
+    // Iteration 3: Handle Gentle Prompt Clicks
+    const handlePromptClick = (question: string) => {
+        // Inject the system's "gentle" question into the chat
+        pushResponse({
             type: 'chat',
-            text: 'Action confirmed! (Mock)'
+            role: 'assistant',
+            text: question,
+            meta: { source: 'context_card_prompt' }
         });
-        // In reality, this would trigger the actual agent action
     };
 
-    const handleCancel = () => {
-        addAgentResponse({
-            type: 'chat',
-            text: 'Action cancelled.'
-        });
-    };
+    // 1. Idle / Dashboard State
+    // Default view when no active conversation/action blocking
+    if (uiState === "idle") {
+        return (
+            <div className="flex-1 h-full relative p-4 md:p-6 overflow-hidden">
+                {/* Background Layer */}
+                <div className="absolute inset-0 z-0">
+                    <AmbientCanvas />
+                </div>
 
-    return (
-        <main className="flex z-10 flex-col flex-1 justify-center items-center p-8 w-full max-w-5xl mx-auto overflow-hidden relative">
-            {isInteracting ? (
-                <div className="w-full max-w-2xl space-y-4 max-h-full overflow-y-auto pb-20 no-scrollbar">
-                    {/* Conversation History */}
-                    {conversationHistory.length === 0 && (
-                        <div className="text-center opacity-50 py-10">Start typing to chat...</div>
-                    )}
+                {/* Content Grid (Zone B) */}
+                <div className="relative z-10 w-full h-full grid grid-cols-1 lg:grid-cols-12 gap-6">
 
-                    {conversationHistory.map((response, idx) => {
-                        // Skip rendering the last one if it is an action request, because we render that permanently below?
-                        // Actually, chat history should just be history.
-                        // But pending action requests should be prominent.
+                    {/* Calendar Area (Larger) */}
+                    <div className="lg:col-span-8 h-full min-h-[400px]">
+                        <CalendarMonthView />
+                    </div>
 
-                        // If it's a past action request, show it as processed.
-                        if (response.type === 'action_request' && response !== latestAgentResponse) {
-                            return (
-                                <div key={idx} className="bg-stone-100 p-4 rounded-xl text-stone-500 text-sm italic ml-auto max-w-[80%]">
-                                    Pending request from history: {response.text}
-                                </div>
-                            )
-                        }
+                    {/* Lists & Activity Area (Smaller) */}
+                    <div className="lg:col-span-4 h-full flex flex-col gap-6 min-h-[400px]">
 
-                        if (response.type === 'action_request' && response === latestAgentResponse) {
-                            return (
-                                <ActionConfirmationCard
-                                    key={idx}
-                                    text={response.text || 'Confirm action?'}
-                                    onConfirm={handleConfirm}
-                                    onCancel={handleCancel}
+                        {/* ITERATION 2: Context Cards Area */}
+                        {/* Only show if we have cards (mock data) */}
+                        <div className="flex flex-col gap-2">
+                            {mockContextCards.map(card => (
+                                <ContextCard
+                                    key={card.id}
+                                    item={card}
+                                    onPromptClick={handlePromptClick}
                                 />
-                            );
-                        }
+                            ))}
+                        </div>
 
-                        return (
-                            <div key={idx} className={`
-                                p-4 rounded-xl shadow-sm max-w-[80%] animate-slide-up
-                                ${response.type === 'chat' /* We need to distinguish user vs agent. Right now we only have agent responses in history? */
-                                    // The context 'addAgentResponse' seems to mock user input as agent response type 'chat' in inputDeck.
-                                    // We should probably differentiate. But for now, let's assume all right-aligned are user?
-                                    // Wait, InputDeck says "I heard: ..." as an agent response.
-                                    // So everything is Left Aligned (Agent) currently.
-                                    ? 'bg-white/80 mr-auto text-stone-800' : ''}
-                            `}>
-                                {response.text}
-                            </div>
-                        );
-                    })}
-
-                    {/* Spacer for bottom input */}
-                    <div className="h-4"></div>
-                </div>
-            ) : (
-                <DashboardView context={context} />
-            )}
-        </main>
-    );
-};
-
-const DashboardView: React.FC<{ context: any }> = ({ context }) => {
-    return (
-        <div className="text-center space-y-8 animate-fade-in w-full max-w-4xl">
-            <header className="space-y-2">
-                <h1 className={`text-7xl ${context.uiMode === 'nerdy' ? 'font-mono' : 'font-serif tracking-tight'} opacity-90 text-stone-800`}>
-                    {context.dayPhase === 'morning' ? 'Good Morning' :
-                        context.dayPhase === 'evening' ? 'Good Evening' : 'Welcome Home'}
-                </h1>
-                <div className="text-2xl text-stone-500 font-light">
-                    {context.regionalHoliday ? `Today is ${context.regionalHoliday}` : "It's a quiet day."}
-                </div>
-            </header>
-
-            {/* Dashboard Grid */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-12">
-                <DashboardCard title="Up Next">
-                    <div className="flex items-center gap-4">
-                        <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center text-blue-600">📅</div>
-                        <div className="text-left">
-                            <div className="font-bold text-stone-700">Family Dinner</div>
-                            <div className="text-sm text-stone-500">19:00 - Kitchen</div>
+                        {/* Tasks takes usually more space */}
+                        <div className="flex-[3] min-h-0">
+                            <TaskListView />
+                        </div>
+                        {/* Feed takes less space */}
+                        <div className="flex-[2] min-h-0">
+                            <ActivityFeed />
                         </div>
                     </div>
-                </DashboardCard>
 
-                <DashboardCard title="Reminders">
-                    <div className="flex items-center gap-4">
-                        <div className="w-12 h-12 bg-orange-100 rounded-full flex items-center justify-center text-orange-600">📝</div>
-                        <div className="text-left">
-                            <div className="font-bold text-stone-700">Buy Milk</div>
-                            <div className="text-sm text-stone-500">Supermarket</div>
-                        </div>
-                    </div>
-                </DashboardCard>
+                </div>
             </div>
+        );
+    }
+
+    // 2. Chat / Interaction State (Active)
+    return (
+        <div className="flex-1 overflow-auto p-4 space-y-4 pb-20 scroll-smooth bg-[var(--background-dark)]">
+            {/* Simple Header for Context Switching */}
+            <div className="text-center py-4 text-slate-500 text-sm uppercase tracking-widest border-b border-slate-800">
+                Active Session
+            </div>
+
+            {state.responses.map((r, i) => (
+                <div
+                    key={i}
+                    className={`flex flex-col max-w-[80%] animate-in slide-in-from-bottom-2 duration-300 ${r.role === "user"
+                        ? "self-end items-end ml-auto"
+                        : "self-start items-start mr-auto"
+                        }`}
+                >
+                    <div
+                        className={`rounded-2xl px-5 py-3 shadow-sm ${r.role === "user"
+                            ? "bg-[var(--interaction-blue)] text-white rounded-br-none"
+                            : "bg-[var(--surface-highlight)] border border-[var(--border)] text-slate-100 rounded-bl-none"
+                            }`}
+                    >
+                        <div className="whitespace-pre-wrap leading-relaxed">{r.text}</div>
+
+                        {/* Render Calendar Events inline during chat if provided */}
+                        {r.actionResult &&
+                            Array.isArray(r.actionResult.payload) && (
+                                <div className="mt-3 bg-slate-900/50 -mx-2 p-2 rounded border border-slate-700">
+                                    <CalendarWidget events={r.actionResult.payload} />
+                                </div>
+                            )}
+                    </div>
+                </div>
+            ))}
+            {/* Spacer */}
+            <div className="h-4" />
         </div>
     );
-};
-
-const DashboardCard: React.FC<{ title: string, children: React.ReactNode }> = ({ title, children }) => (
-    <div className="bg-white/60 backdrop-blur-sm p-6 rounded-2xl border border-white/50 shadow-sm hover:shadow-md transition-shadow">
-        <h3 className="text-xs uppercase tracking-widest text-stone-400 mb-4 text-left">{title}</h3>
-        {children}
-    </div>
-);
+}
