@@ -1,45 +1,63 @@
-import React from 'react';
-import { useFamilyHub } from '../../lib/contexts/FamilyHubContext';
+"use client";
 
-export const StatusRail: React.FC = () => {
+import { useFamilyHub } from "@/lib/contexts/FamilyHubContext";
+import { useAgentRuntime } from "@/lib/contexts/AgentRuntimeContext";
+import { useEffect, useState } from "react";
+import { UiMode } from "@/lib/contracts/context";
+
+export default function StatusRail() {
     const { context, setUiMode } = useFamilyHub();
+    const { uiState } = useAgentRuntime();
+    const [time, setTime] = useState<string>("--:--");
+
+    useEffect(() => {
+        const tick = () =>
+            setTime(
+                new Date().toLocaleTimeString("de-DE", {
+                    hour: "2-digit",
+                    minute: "2-digit",
+                })
+            );
+
+        tick();
+        const id = setInterval(tick, 60_000);
+        return () => clearInterval(id);
+    }, []);
+
+    const modes: { id: UiMode; label: string; icon: string }[] = [
+        { id: "calm", label: "Calm", icon: "🍃" },
+        { id: "nerdy", label: "Nerdy", icon: "🤓" },
+        { id: "manga", label: "Manga", icon: "🗯️" },
+    ];
 
     return (
-        <div className={`
-            z-50 flex flex-row justify-between items-center p-6 w-full h-20 
-            transition-colors duration-500
-            ${context.uiMode === 'nerdy'
-                ? 'bg-black/80 text-green-400 font-mono border-b border-green-500'
-                : context.uiMode === 'manga'
-                    ? 'bg-white/90 text-black font-bold border-b-4 border-black shadow-[0px_4px_0px_0px_rgba(0,0,0,1)]'
-                    : 'bg-transparent text-stone-800 font-serif'}
-        `}>
-            {/* Left: Clock & Weather Mock */}
-            <div className="flex gap-6 items-center">
-                <div className="text-3xl font-bold">{context.time.slice(0, 5)}</div>
-                <div className="flex gap-2 items-center text-lg opacity-70">
-                    <span>⛅</span>
-                    <span>14°C</span>
+        <div className="flex items-center justify-between px-4 py-2 border-b bg-slate-900 border-slate-800 text-slate-300">
+            <div className="flex items-center gap-4">
+                <div className="font-semibold text-slate-100">FamilyHub</div>
+                <div className="flex bg-slate-800 rounded-lg p-1 gap-1">
+                    {modes.map((m) => (
+                        <button
+                            key={m.id}
+                            onClick={() => setUiMode(m.id)}
+                            className={`px-3 py-1 rounded-md text-sm transition-all ${context.uiMode === m.id
+                                ? "bg-blue-600 text-white shadow-sm"
+                                : "hover:bg-slate-700 text-slate-400"
+                                }`}
+                            title={m.label}
+                        >
+                            <span className="mr-1">{m.icon}</span>
+                            <span className="hidden sm:inline">{m.label}</span>
+                        </button>
+                    ))}
                 </div>
             </div>
 
-            {/* Right: Context Badges & Debug Controls */}
-            <div className="flex gap-4 items-center">
-                <span className="px-3 py-1 text-xs uppercase opacity-50 tracking-widest border border-current rounded-full">
-                    {context.dayType}
-                </span>
-
-                {/* Debug Mode Switcher */}
-                <select
-                    value={context.uiMode}
-                    onChange={(e) => setUiMode(e.target.value as any)}
-                    className="bg-transparent border border-current rounded px-2 py-1 text-sm cursor-pointer hover:opacity-100 opacity-50 outline-none"
-                >
-                    <option value="calm">Calm</option>
-                    <option value="nerdy">Nerdy</option>
-                    <option value="manga">Manga</option>
-                </select>
+            <div className="flex items-center gap-4">
+                <div className={`text-xs uppercase tracking-wider font-bold ${uiState !== 'idle' ? 'text-blue-400' : 'text-slate-600'}`}>
+                    {uiState === 'idle' ? 'Ambient' : 'Active'}
+                </div>
+                <div className="font-mono text-slate-400">{time}</div>
             </div>
         </div>
     );
-};
+}

@@ -1,10 +1,13 @@
-import ClientWrapper from "../components/ClientWrapper";
+import { AgentRuntimeProvider } from "@/lib/contexts/AgentRuntimeContext";
+import { FamilyHubProvider } from "@/lib/contexts/FamilyHubContext";
+import HubShell from "@/components/shell/HubShell";
 
-export default function HomePage() {
+export default function Page() {
   return (
-    <>
-      <h1>Willkommen zum Family Hub</h1>
-      <ClientWrapper />
-    </>
+    <FamilyHubProvider>
+      <AgentRuntimeProvider>
+        <HubShell />
+      </AgentRuntimeProvider>
+    </FamilyHubProvider>
   );
 }

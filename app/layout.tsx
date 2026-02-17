@@ -1,19 +1,22 @@
 // app/layout.tsx
+
 import "./globals.css";
-import { ReactNode } from "react";
 
 export const metadata = {
   title: "Valur Family Hub",
-  description: "Euer smartes Zuhause Dashboard",
+  description: "Dashboard für Familie, Wetter, Termine, Chat",
 };
 
-import ClientLayout from "../components/ClientLayout"; // Pfad ggf. anpassen
-
-export default function RootLayout({ children }: { children: React.ReactNode }) {
+export default function RootLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
   return (
-    <html lang="de">
-      <body className="min-h-screen bg-gray-900 text-gray-100">
-        <ClientLayout>{children}</ClientLayout>
+    <html lang="de" suppressHydrationWarning>
+      <head />
+      <body className="min-h-screen bg-gray-900 text-gray-100" suppressHydrationWarning>
+        {children}
       </body>
     </html>
   );

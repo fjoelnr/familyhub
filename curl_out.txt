@@ -1,0 +1,18 @@
+HTTP/1.1 500 Internal Server Error
+Date: Wed, 24 Dec 2025 23:34:28 GMT
+Server: Apache/2.4.65 (Debian)
+Set-Cookie: PHPSESSID=nt8jb98co5ubrrgga1dtih6dl9; path=/; HttpOnly
+Expires: Thu, 19 Nov 1981 08:52:00 GMT
+Cache-Control: no-store, no-cache, must-revalidate
+Pragma: no-cache
+X-Sabre-Version: 4.7.0
+Content-Length: 297
+Connection: close
+Content-Type: application/xml; charset=utf-8
+
+<?xml version="1.0" encoding="utf-8"?>
+<d:error xmlns:d="DAV:" xmlns:s="http://sabredav.org/ns">
+  <s:sabredav-version>4.7.0</s:sabredav-version>
+  <s:exception>Sabre\Xml\ParseException</s:exception>
+  <s:message>The input element to parse is empty. Do not attempt to parse</s:message>
+</d:error>

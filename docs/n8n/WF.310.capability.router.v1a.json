@@ -1,0 +1,222 @@
+{
+  "name": "WF.310.capability.router.v1a",
+  "nodes": [
+    {
+      "parameters": {},
+      "id": "46f66a9c-aed5-49c2-834d-9c812f47a0ba",
+      "name": "Execute Workflow Trigger",
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "typeVersion": 1,
+      "position": [
+        -752,
+        160
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "string": [
+            {
+              "value1": "={{$json.intent}}",
+              "operation": "equals",
+              "value2": "calendar"
+            }
+          ]
+        }
+      },
+      "id": "ab16b387-ef83-41dc-b606-baccb54f53b2",
+      "name": "Route Intent",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [
+        -304,
+        160
+      ]
+    },
+    {
+      "parameters": {
+        "workflowId": "WF.320.calendar.read.v1",
+        "options": {}
+      },
+      "id": "2b45e84b-ca85-46cf-b944-2db07f84f629",
+      "name": "Exec Calendar",
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1,
+      "position": [
+        0,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "workflowId": "WF.399.fallback.chat.v1",
+        "options": {}
+      },
+      "id": "a5bc6a83-8d39-4181-a028-a1c6a7163383",
+      "name": "Exec Fallback",
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1,
+      "position": [
+        0,
+        304
+      ]
+    },
+    {
+      "parameters": {
+        "mode": "passThrough",
+        "options": {}
+      },
+      "id": "54d7f431-4504-42f1-8d04-f1f74c19a163",
+      "name": "Merge Result",
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 2,
+      "position": [
+        304,
+        160
+      ]
+    },
+    {
+      "parameters": {
+        "language": "javascript"
+      },
+      "id": "525c41d9-a5f3-4215-bb3d-708623dc5d37",
+      "name": "Return Result",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 1,
+      "position": [
+        608,
+        160
+      ]
+    },
+    {
+      "parameters": {
+        "batching": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "typeVersion": 1.7,
+      "position": [
+        -592,
+        160
+      ],
+      "id": "95c2fbc0-366c-4c82-8914-6aa63128a19d",
+      "name": "Basic LLM Chain"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmOllama",
+      "typeVersion": 1,
+      "position": [
+        -592,
+        336
+      ],
+      "id": "0d5686c8-d1a4-4539-9e17-6a556ed1c281",
+      "name": "Ollama Model",
+      "credentials": {
+        "ollamaApi": {
+          "id": "tyCxpLPLHSjb5UZ4",
+          "name": "Ollama account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Route Intent": {
+      "main": [
+        [
+          {
+            "node": "Exec Calendar",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Exec Fallback",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Exec Calendar": {
+      "main": [
+        [
+          {
+            "node": "Merge Result",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Exec Fallback": {
+      "main": [
+        [
+          {
+            "node": "Merge Result",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Merge Result": {
+      "main": [
+        [
+          {
+            "node": "Return Result",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Ollama Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Basic LLM Chain",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Basic LLM Chain": {
+      "main": [
+        [
+          {
+            "node": "Route Intent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Execute Workflow Trigger": {
+      "main": [
+        [
+          {
+            "node": "Basic LLM Chain",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "0f729eb5-ff48-4a0e-8c09-02994d5b74cf",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "7730c1c37b85f988d1ff983ae031ea08ae25df877671906c9bf4db6a4f067873"
+  },
+  "id": "lPlQ5PDnpLGjhSno",
+  "tags": []
+}

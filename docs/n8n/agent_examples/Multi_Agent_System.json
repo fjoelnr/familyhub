@@ -1,0 +1,716 @@
+{
+  "name": "Multi_Agent_System",
+  "nodes": [
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json.text }}",
+        "options": {
+          "systemMessage": "=# Overview\nYou are the ultimate personal assistant. Your job is to send the user's query to the correct tool. You should never be writing emails, or creating even summaries, you just need to call the correct tool.\n\n## Tools\n- Think: Use this to think deeply or if you get stuck\n- emailAgent: Use this tool to take action in email\n- calendarAgent: Use this tool to take action in calendar\n- contactAgent: Use this tool to get, update, or add contacts\n- contentCreator: Use this tool to create blog posts\n- Tavily: Use this tool to search the web\n\n## Rules\n- Some actions require you to look up contact information first. For the following actions, you must get email address and send that to the agent who needs it:\n  - sending emails\n  - drafting emails\n  - creating calendar event with attendee\n\n## Instructions\n1) Call the neccessary tools based on the user request\n2) Use the \"Think\" tool to verify you took the right steps. This tool should be called every time.\n\n\n## Examples\n1) \n- Input: send an email to nate herkelman asking him what time he wants to leave\n  - Action: Use contactAgent to get nate herkelman's email\n  - Action: Use emailAgent to send the email. You will pass the tool a query like \"send nate herkelman an email to ask what time he wants to leave. here is his email: [email address]\n- Output: The email has been sent to Nate Herkelman. Anything else I can help you with?\n\n\n## Final Reminders\nHere is the current date/time: {{ $now }}\n"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 1.7,
+      "position": [
+        1488,
+        672
+      ],
+      "id": "5f0a204c-b2a0-4421-bd95-e01bc235ea57",
+      "name": "Ultimate Assistant"
+    },
+    {
+      "parameters": {
+        "name": "emailAgent",
+        "description": "Call this tool for any email actions.",
+        "workflowId": {
+          "__rl": true,
+          "value": "tQaoLTLde7KFXlb6",
+          "mode": "list",
+          "cachedResultUrl": "/workflow/tQaoLTLde7KFXlb6",
+          "cachedResultName": "Email_Agent"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {},
+          "matchingColumns": [],
+          "schema": [],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.toolWorkflow",
+      "typeVersion": 2,
+      "position": [
+        1344,
+        1120
+      ],
+      "id": "22502808-3f3f-4568-a37c-d3d7544f616e",
+      "name": "Email Agent"
+    },
+    {
+      "parameters": {
+        "name": "contactAgent",
+        "description": "Call this tool for any contact related actions.",
+        "workflowId": {
+          "__rl": true,
+          "value": "ERaMQFeqEyhDTza1",
+          "mode": "list",
+          "cachedResultName": "Contact_Agent"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {},
+          "matchingColumns": [],
+          "schema": [],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.toolWorkflow",
+      "typeVersion": 2,
+      "position": [
+        1824,
+        1120
+      ],
+      "id": "81ab6e23-7018-464d-9ddc-ca245aea5f9b",
+      "name": "Contact Agent"
+    },
+    {
+      "parameters": {
+        "name": "contentCreator",
+        "description": "Call this tool to create blog posts.",
+        "workflowId": {
+          "__rl": true,
+          "value": "cjUW9f0OCjj1BfeW",
+          "mode": "list",
+          "cachedResultName": "Content_Creator_Agent"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {},
+          "matchingColumns": [],
+          "schema": [],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.toolWorkflow",
+      "typeVersion": 2,
+      "position": [
+        2064,
+        1120
+      ],
+      "id": "716e308b-4085-4444-8fc4-61f007c355c4",
+      "name": "Content Creator Agent"
+    },
+    {
+      "parameters": {},
+      "type": "@n8n/n8n-nodes-langchain.toolCalculator",
+      "typeVersion": 1,
+      "position": [
+        992,
+        1120
+      ],
+      "id": "a3594569-de3b-4f5e-86a9-b5c891efe89a",
+      "name": "Calculator"
+    },
+    {
+      "parameters": {
+        "name": "calendarAgent",
+        "description": "Call this tool for any calendar action.",
+        "workflowId": {
+          "__rl": true,
+          "value": "EhDDgS5NjAuxaKb6",
+          "mode": "list",
+          "cachedResultName": "Calender_Agent"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {},
+          "matchingColumns": [],
+          "schema": [],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.toolWorkflow",
+      "typeVersion": 2,
+      "position": [
+        1584,
+        1120
+      ],
+      "id": "372d96bd-2059-4efd-a83f-063fc00cf354",
+      "name": "Calendar Agent"
+    },
+    {
+      "parameters": {
+        "content": "# Parent Agent\n\n",
+        "height": 420,
+        "width": 1800,
+        "color": 2
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        432,
+        480
+      ],
+      "typeVersion": 1,
+      "id": "0dba52b0-b1a1-4c08-8f84-146e99bd21a4",
+      "name": "Sticky Note"
+    },
+    {
+      "parameters": {},
+      "type": "@n8n/n8n-nodes-langchain.toolThink",
+      "typeVersion": 1,
+      "position": [
+        1120,
+        1120
+      ],
+      "id": "fdd49505-c347-4d15-97a6-6957413a23b4",
+      "name": "Think"
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "value": "gpt-5-mini",
+          "mode": "list",
+          "cachedResultName": "gpt-5-mini"
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.2,
+      "position": [
+        704,
+        1120
+      ],
+      "id": "337a25ac-7027-4f73-86db-748843555d02",
+      "name": "GPT 4.1",
+      "credentials": {
+        "openAiApi": {
+          "id": "bihF3w9TTrGm63kG",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "updates": [
+          "message"
+        ],
+        "additionalFields": {}
+      },
+      "id": "4a7d1382-8f90-484f-9e4f-3538f92a8f4e",
+      "name": "Telegram Trigger",
+      "type": "n8n-nodes-base.telegramTrigger",
+      "typeVersion": 1.1,
+      "position": [
+        464,
+        704
+      ],
+      "webhookId": "99eab1a0-569d-4f0f-a49e-578a02abfe63",
+      "credentials": {
+        "telegramApi": {
+          "id": "H5gA9Y5kQrsWOq61",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "fe7ecc99-e1e8-4a5e-bdd6-6fce9757b234",
+              "name": "text",
+              "value": "={{ $json.message.text }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "f4895946-8248-48a3-b3a5-efba1b6bf7ee",
+      "name": "Set 'Text'",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        1072,
+        720
+      ]
+    },
+    {
+      "parameters": {
+        "resource": "file",
+        "fileId": "={{ $json.message.voice.file_id }}",
+        "additionalFields": {}
+      },
+      "id": "b2b2222e-54ad-4e78-94e1-bef8c897da9a",
+      "name": "Download Voice File",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        1008,
+        560
+      ],
+      "webhookId": "c0b376b1-7b63-41b6-8063-0b3096b8333d",
+      "credentials": {
+        "telegramApi": {
+          "id": "H5gA9Y5kQrsWOq61",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resource": "audio",
+        "operation": "transcribe",
+        "options": {}
+      },
+      "id": "966746f8-4d1e-4da8-b8f4-d0cea6b6726b",
+      "name": "Transcribe Audio",
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "typeVersion": 1.6,
+      "position": [
+        1168,
+        560
+      ],
+      "credentials": {
+        "openAiApi": {
+          "id": "bihF3w9TTrGm63kG",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.message.voice.file_id }}",
+                    "rightValue": "",
+                    "operator": {
+                      "type": "string",
+                      "operation": "exists",
+                      "singleValue": true
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "Voice"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "8c844924-b2ed-48b0-935c-c66a8fd0c778",
+                    "leftValue": "={{ $json.message.text }}",
+                    "rightValue": "",
+                    "operator": {
+                      "type": "string",
+                      "operation": "exists",
+                      "singleValue": true
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "Text"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "cd5436b2-65e8-42b6-a3e5-85f222eb41d9",
+      "name": "Switch",
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.2,
+      "position": [
+        832,
+        704
+      ]
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $('Telegram Trigger').item.json.message.chat.id }}",
+        "text": "={{ $json.output }}",
+        "additionalFields": {
+          "appendAttribution": false
+        }
+      },
+      "id": "e7892446-afd7-4378-abfd-2414c0a15154",
+      "name": "Response",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        1904,
+        672
+      ],
+      "webhookId": "682ca5ab-d30c-4ea5-bb25-c2f26206e761",
+      "credentials": {
+        "telegramApi": {
+          "id": "H5gA9Y5kQrsWOq61",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sessionIdType": "customKey",
+        "sessionKey": "={{ $('Telegram Trigger').item.json.message.chat.id }}"
+      },
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "typeVersion": 1.3,
+      "position": [
+        848,
+        1120
+      ],
+      "id": "48e021b9-c0ec-42fa-964c-b1dccaa570a3",
+      "name": "Simple Memory"
+    },
+    {
+      "parameters": {
+        "content": "# Benefits of Multi Agent System\n\n- More reusable components\n\n- Model flexibility (different models per agent)\n\n- Easier debugging and maintenance\n\n- Clearer prompt logic and better testability\n\n- Foundation for multi-turn agents or agent memory",
+        "height": 460,
+        "width": 540,
+        "color": 7
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        1680,
+        0
+      ],
+      "id": "90075b3b-e832-465a-bfaf-097730306b31",
+      "name": "Sticky Note3"
+    },
+    {
+      "parameters": {
+        "content": "# Email Agent",
+        "height": 360
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        1264,
+        912
+      ],
+      "id": "6157aa30-21c2-45ff-a9a9-6e88680e7724",
+      "name": "Sticky Note1"
+    },
+    {
+      "parameters": {
+        "content": "# Calendar Agent",
+        "height": 360,
+        "color": 4
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        1504,
+        912
+      ],
+      "id": "b34dc681-1463-4692-a5e1-1e1b5e8e6edc",
+      "name": "Sticky Note2"
+    },
+    {
+      "parameters": {
+        "content": "# Contact Agent",
+        "height": 360,
+        "color": 5
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        1744,
+        912
+      ],
+      "id": "5892a5dc-6049-4f93-96f5-ebd922479542",
+      "name": "Sticky Note4"
+    },
+    {
+      "parameters": {
+        "content": "# 📚 Setup Guide  \n*Author:* [Nate Herk](https://www.youtube.com/@nateherk)\n\n## Instructions\n1. Take the **Email Agent** and place it into a new workflow.  \n2. Link the **Email Agent tool** to that new workflow you created.  \n3. In that new workflow, start it with the **\"Execute Workflow\" trigger** (`When workflow is executed by another`).  \n4. Repeat steps 1–3 for the **Calendar Agent**, **Contact Agent**, and **Content Creator Agent**.  \n5. Ensure all agents are powered by a **Chat Model** (e.g., OpenRouter, Google, or OpenAI).  \n6. Connect all necessary credentials:\n   - ✅ Chat model credentials  \n   - ✅ Tavily API key  \n   - ✅ Google account  \n   - ✅ Airtable  \n   - ✅ Telegram  \n---\n\nStay organized, test each agent individually, and you’ll be up and running in no time!\n",
+        "height": 460,
+        "width": 800
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        432,
+        0
+      ],
+      "id": "8f79b8fe-8a9c-4a17-aa7b-7a1afd2bc17f",
+      "name": "Sticky Note6"
+    },
+    {
+      "parameters": {
+        "content": "## Brain/Tools",
+        "height": 360,
+        "width": 840,
+        "color": 7
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        432,
+        912
+      ],
+      "id": "f46ca06c-6c51-4b72-af18-93b0a2179531",
+      "name": "Sticky Note7"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "cdb98767-5769-44c4-bb80-54fc425ed6a4",
+              "leftValue": "={{ $json.message.chat.id }}",
+              "rightValue": 616754168,
+              "operator": {
+                "type": "number",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.filter",
+      "typeVersion": 2.2,
+      "position": [
+        672,
+        704
+      ],
+      "id": "8bc8398c-32d5-4df6-ab8d-c599a17fe2a4",
+      "name": "Schutz vor Fremdzugriff"
+    },
+    {
+      "parameters": {
+        "content": "# Content Creator Agent",
+        "height": 360,
+        "color": 6
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        1984,
+        912
+      ],
+      "id": "84ea5815-4170-4496-997f-106aeafc8ca0",
+      "name": "Sticky Note5"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Ultimate Assistant": {
+      "main": [
+        [
+          {
+            "node": "Response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Email Agent": {
+      "ai_tool": [
+        [
+          {
+            "node": "Ultimate Assistant",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Contact Agent": {
+      "ai_tool": [
+        [
+          {
+            "node": "Ultimate Assistant",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Content Creator Agent": {
+      "ai_tool": [
+        [
+          {
+            "node": "Ultimate Assistant",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Calculator": {
+      "ai_tool": [
+        [
+          {
+            "node": "Ultimate Assistant",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Calendar Agent": {
+      "ai_tool": [
+        [
+          {
+            "node": "Ultimate Assistant",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Think": {
+      "ai_tool": [
+        [
+          {
+            "node": "Ultimate Assistant",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "GPT 4.1": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Ultimate Assistant",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Telegram Trigger": {
+      "main": [
+        [
+          {
+            "node": "Schutz vor Fremdzugriff",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Set 'Text'": {
+      "main": [
+        [
+          {
+            "node": "Ultimate Assistant",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Download Voice File": {
+      "main": [
+        [
+          {
+            "node": "Transcribe Audio",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Transcribe Audio": {
+      "main": [
+        [
+          {
+            "node": "Ultimate Assistant",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Switch": {
+      "main": [
+        [
+          {
+            "node": "Download Voice File",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Set 'Text'",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Simple Memory": {
+      "ai_memory": [
+        [
+          {
+            "node": "Ultimate Assistant",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Schutz vor Fremdzugriff": {
+      "main": [
+        [
+          {
+            "node": "Switch",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "5b24d634-7b77-4413-982f-91d16be16a82",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "7730c1c37b85f988d1ff983ae031ea08ae25df877671906c9bf4db6a4f067873"
+  },
+  "id": "JQk0jB4vXNDIcvxp",
+  "tags": []
+}

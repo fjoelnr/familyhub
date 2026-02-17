@@ -1,0 +1,19 @@
+services:
+  familyhub:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: familyhub
+    ports:
+      - "3000:3000"
+    environment:
+      NODE_ENV: production
+      N8N_WEBHOOK_URL: ${N8N_WEBHOOK_URL}
+      N8N_CALENDAR_READ_GOOGLE_URL: ${N8N_CALENDAR_READ_GOOGLE_URL}
+      N8N_CHAT_BACKBONE_URL: ${N8N_CHAT_BACKBONE_URL}
+    restart: unless-stopped
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
