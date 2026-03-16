@@ -1,0 +1,40 @@
+name: Repo Hygiene
+
+on:
+  push:
+    branches:
+      - main
+      - master
+  pull_request:
+
+jobs:
+  hygiene:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Validate baseline files
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          missing=0
+
+          if [ ! -f "README.md" ]; then
+            echo "::error::Missing README.md in repository root"
+            missing=1
+          fi
+
+          if [ ! -f ".github/CODEOWNERS" ]; then
+            echo "::error::Missing .github/CODEOWNERS"
+            missing=1
+          fi
+
+          if [ ! -f "LICENSE" ] && [ ! -f "LICENSE.md" ] && [ ! -f "LICENSE.txt" ]; then
+            echo "::warning::No root LICENSE file found"
+          fi
+
+          if [ "$missing" -ne 0 ]; then
+            exit 1
+          fi
