@@ -1,4 +1,5 @@
-import { ChatOptions, ChatResponse, Message, Role } from "@/lib/contracts/ai";
+import { ChatOptions, ChatResponse, Message } from "@/lib/contracts/ai";
+import { ContextSnapshot } from "@/lib/contracts/context";
 import { getContextSnapshot } from "@/lib/context/getContextSnapshot";
 import { callOllama } from "./providers/ollama";
 import { callOpenAI } from "./providers/openai";
@@ -15,7 +16,7 @@ function getSystemPrompt(uiMode: string, contextSummary: string): string {
     return `${persona}\n\nCurrent Context:\n${contextSummary}\n\nAnswer the user's request based on this context.`;
 }
 
-function stringifyContext(context: Record<string, unknown>): string {
+function stringifyContext(context: unknown): string {
     // specialized stringifier if needed, or just JSON
     return JSON.stringify(context, null, 2);
 }
@@ -36,10 +37,10 @@ export async function createChatResponse(
 
     // 2. Get Context
     const snapshot = getContextSnapshot();
-    const finalContext = { ...snapshot, ...(options?.contextOverride || {}) };
+    const finalContext: ContextSnapshot = { ...snapshot, ...(options?.contextOverride || {}) };
 
     // 3. Prepare Messages
-    const systemPrompt = options?.systemPromptOverride || getSystemPrompt(finalContext.uiMode, stringifyContext(finalContext as any));
+    const systemPrompt = options?.systemPromptOverride || getSystemPrompt(finalContext.uiMode, stringifyContext(finalContext));
     const messages: Message[] = [
         { role: "system", content: systemPrompt },
         { role: "user", content: input }

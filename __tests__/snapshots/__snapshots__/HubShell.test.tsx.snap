@@ -1,140 +1,714 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`HubShell Snapshot renders correctly with children 1`] = `
+exports[`HubShell Snapshot renders correctly 1`] = `
 <div>
   <div
-    class="flex flex-col h-screen"
+    class="flex flex-col h-screen overflow-hidden transition-colors duration-500 bg-[var(--background-dark)]"
   >
-    <div
-      class="flex items-center justify-between px-4 py-2 border-b bg-slate-900 border-slate-800 text-slate-300"
+    <main
+      class="flex flex-col flex-1 relative min-w-0"
     >
       <div
-        class="flex items-center gap-4"
+        class="flex-1 overflow-hidden relative"
       >
         <div
-          class="font-semibold text-slate-100"
+          class="flex-1 h-full relative p-4 md:p-6 overflow-hidden"
         >
-          FamilyHub
-        </div>
-        <div
-          class="flex bg-slate-800 rounded-lg p-1 gap-1"
-        >
-          <button
-            class="px-3 py-1 rounded-md text-sm transition-all bg-blue-600 text-white shadow-sm"
-            title="Calm"
+          <div
+            class="absolute inset-0 z-0"
           >
-            <span
-              class="mr-1"
+            <div
+              class="flex flex-col items-center justify-start h-full pt-[10vh] pb-24 overflow-y-auto no-scrollbar space-y-12 animate-in fade-in duration-700"
             >
-              🍃
-            </span>
-            <span
-              class="hidden sm:inline"
-            >
-              Calm
-            </span>
-          </button>
-          <button
-            class="px-3 py-1 rounded-md text-sm transition-all hover:bg-slate-700 text-slate-400"
-            title="Nerdy"
+              <div
+                class="flex flex-col items-center space-y-8 shrink-0"
+              >
+                <div
+                  class="text-center z-10"
+                >
+                  <div
+                    class="text-8xl font-thin tracking-tighter text-[var(--foreground)] transition-colors duration-500"
+                  >
+                    13:30:00
+                  </div>
+                  <div
+                    class="text-2xl font-light text-[var(--foreground)] opacity-80 mt-2 transition-colors duration-500"
+                  >
+                    Freitag, 20. März
+                  </div>
+                </div>
+                <div
+                  class="relative flex items-center justify-center w-[18vmin] h-[18vmin] max-w-32 max-h-32 min-w-20 min-h-20 bg-[#D02020] rounded-full shadow-lg"
+                >
+                  <img
+                    alt="Valur Identity"
+                    aria-hidden="true"
+                    class="w-[80%] h-auto object-contain"
+                    src="/images/valur-falke.png"
+                  />
+                </div>
+              </div>
+              <div
+                class="flex flex-col items-center w-full max-w-md space-y-8 px-4 shrink-0"
+              >
+                <div
+                  class="w-full bg-slate-800/50 p-6 rounded-2xl backdrop-blur-sm border border-slate-700/50 transition-all hover:bg-slate-800/70"
+                >
+                  <h3
+                    class="text-xs uppercase tracking-widest text-slate-500 mb-4 font-bold flex items-center gap-2"
+                  >
+                    <span
+                      class="w-2 h-2 rounded-full bg-blue-500"
+                    />
+                    Up Next
+                  </h3>
+                  <div
+                    class="opacity-60"
+                  >
+                    No upcoming events
+                  </div>
+                </div>
+                <div
+                  class="w-full max-w-4xl mx-auto p-6 rounded-xl border border-slate-800/30 bg-slate-900/30 backdrop-blur-[1px] text-slate-400 opacity-80 transition-opacity hover:opacity-100"
+                >
+                  <h2
+                    class="text-xl font-light text-slate-300 text-center mb-8 tracking-wide leading-relaxed"
+                  >
+                    Wofür dieser Ort da ist
+                  </h2>
+                  <div
+                    class="flex justify-center"
+                  >
+                    <ul
+                      class="space-y-4 text-lg font-light leading-relaxed text-center"
+                    >
+                      <li>
+                        nachschauen, was heute ansteht
+                      </li>
+                      <li>
+                        Absprachen und wichtige Infos finden
+                      </li>
+                      <li>
+                        eigene Hinweise für die Familie festhalten
+                      </li>
+                      <li>
+                        den täglichen Überblick behalten
+                      </li>
+                    </ul>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div
+            class="relative z-10 w-full h-full grid grid-cols-1 lg:grid-cols-12 gap-6"
           >
-            <span
-              class="mr-1"
+            <div
+              class="lg:col-span-8 h-full min-h-[400px]"
             >
-              🤓
-            </span>
-            <span
-              class="hidden sm:inline"
+              <div
+                class="h-full flex items-center justify-center text-slate-400"
+              >
+                Lade Kalender...
+              </div>
+            </div>
+            <div
+              class="lg:col-span-4 h-full flex flex-col gap-6 min-h-[400px]"
             >
-              Nerdy
-            </span>
-          </button>
-          <button
-            class="px-3 py-1 rounded-md text-sm transition-all hover:bg-slate-700 text-slate-400"
-            title="Manga"
-          >
-            <span
-              class="mr-1"
-            >
-              🗯️
-            </span>
-            <span
-              class="hidden sm:inline"
-            >
-              Manga
-            </span>
-          </button>
+              <div
+                class="flex flex-col gap-2"
+              >
+                <div
+                  class="
+            group flex flex-row items-start gap-3
+            p-3 rounded-xl border border-transparent
+            hover:bg-[var(--surface-highlight)] 
+            transition-colors duration-500
+            animate-in fade-in slide-in-from-bottom-2
+            cursor-default
+        "
+                >
+                  <div
+                    class="
+                w-1 h-8 rounded-full opacity-60 mt-1
+                bg-indigo-400
+            "
+                  />
+                  <div
+                    class="flex-1 flex flex-col gap-1.5"
+                  >
+                    <p
+                      class="text-sm text-slate-300 font-medium opacity-90 leading-snug"
+                    >
+                      This week has more calendar entries than usual.
+                    </p>
+                    <button
+                      class="   text-xs text-indigo-300/80 hover:text-indigo-300   text-left w-fit transition-colors duration-300   hover:underline decoration-indigo-300/30 underline-offset-4   "
+                    >
+                      Should we prepare?
+                    </button>
+                  </div>
+                </div>
+                <div
+                  class="
+            group flex flex-row items-start gap-3
+            p-3 rounded-xl border border-transparent
+            hover:bg-[var(--surface-highlight)] 
+            transition-colors duration-500
+            animate-in fade-in slide-in-from-bottom-2
+            cursor-default
+        "
+                >
+                  <div
+                    class="
+                w-1 h-8 rounded-full opacity-60 mt-1
+                bg-emerald-400
+            "
+                  />
+                  <div
+                    class="flex-1 flex flex-col gap-1.5"
+                  >
+                    <p
+                      class="text-sm text-slate-300 font-medium opacity-90 leading-snug"
+                    >
+                      Several activities today involve "Soccer".
+                    </p>
+                    <button
+                      class="   text-xs text-indigo-300/80 hover:text-indigo-300   text-left w-fit transition-colors duration-300   hover:underline decoration-indigo-300/30 underline-offset-4   "
+                    >
+                      Want to group these?
+                    </button>
+                  </div>
+                </div>
+              </div>
+              <div
+                class="flex-[3] min-h-0"
+              >
+                <div
+                  class="flex flex-col gap-4 h-full"
+                >
+                  <div
+                    class="flex-1 bg-[var(--surface-dark)] rounded-xl border border-[var(--border)] overflow-hidden shadow-sm flex flex-col"
+                  >
+                    <div
+                      class="bg-blue-600 p-3 text-white flex justify-between items-center bg-opacity-90"
+                    >
+                      <h3
+                        class="font-semibold tracking-wide text-sm uppercase flex items-center gap-2"
+                      >
+                        Einkaufen
+                      </h3>
+                      <span
+                        class="text-xs font-mono bg-black/20 px-2 py-0.5 rounded-full"
+                      >
+                        3
+                         open
+                      </span>
+                    </div>
+                    <div
+                      class="flex-1 overflow-auto p-2 space-y-1"
+                    >
+                      <div
+                        class="group flex items-center gap-3 p-2 hover:bg-[var(--surface-highlight)]/30 rounded-lg cursor-pointer transition-all duration-200 select-none"
+                      >
+                        <div
+                          class="
+                                    w-5 h-5 rounded-md border flex items-center justify-center transition-all duration-300
+                                    border-slate-500 group-hover:border-slate-300 bg-slate-800/50
+                                "
+                        />
+                        <div
+                          class="flex flex-col"
+                        >
+                          <span
+                            class="
+                                        transition-all duration-300 font-medium
+                                        text-[var(--text-primary)]
+                                    "
+                          >
+                            Milch
+                          </span>
+                        </div>
+                      </div>
+                      <div
+                        class="group flex items-center gap-3 p-2 hover:bg-[var(--surface-highlight)]/30 rounded-lg cursor-pointer transition-all duration-200 select-none"
+                      >
+                        <div
+                          class="
+                                    w-5 h-5 rounded-md border flex items-center justify-center transition-all duration-300
+                                    bg-green-500 border-green-500 scale-90
+                                "
+                        >
+                          <svg
+                            class="w-3.5 h-3.5 text-white animate-in zoom-in duration-200"
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
+                          >
+                            <path
+                              d="M5 13l4 4L19 7"
+                              stroke-linecap="round"
+                              stroke-linejoin="round"
+                              stroke-width="3"
+                            />
+                          </svg>
+                        </div>
+                        <div
+                          class="flex flex-col"
+                        >
+                          <span
+                            class="
+                                        transition-all duration-300 font-medium
+                                        text-[var(--text-secondary)] line-through decoration-slate-600 opacity-60
+                                    "
+                          >
+                            Eier
+                          </span>
+                        </div>
+                      </div>
+                      <div
+                        class="group flex items-center gap-3 p-2 hover:bg-[var(--surface-highlight)]/30 rounded-lg cursor-pointer transition-all duration-200 select-none"
+                      >
+                        <div
+                          class="
+                                    w-5 h-5 rounded-md border flex items-center justify-center transition-all duration-300
+                                    border-slate-500 group-hover:border-slate-300 bg-slate-800/50
+                                "
+                        />
+                        <div
+                          class="flex flex-col"
+                        >
+                          <span
+                            class="
+                                        transition-all duration-300 font-medium
+                                        text-[var(--text-primary)]
+                                    "
+                          >
+                            Brot
+                          </span>
+                        </div>
+                      </div>
+                      <div
+                        class="group flex items-center gap-3 p-2 hover:bg-[var(--surface-highlight)]/30 rounded-lg cursor-pointer transition-all duration-200 select-none"
+                      >
+                        <div
+                          class="
+                                    w-5 h-5 rounded-md border flex items-center justify-center transition-all duration-300
+                                    border-slate-500 group-hover:border-slate-300 bg-slate-800/50
+                                "
+                        />
+                        <div
+                          class="flex flex-col"
+                        >
+                          <span
+                            class="
+                                        transition-all duration-300 font-medium
+                                        text-[var(--text-primary)]
+                                    "
+                          >
+                            Äpfel
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  <div
+                    class="flex-1 bg-[var(--surface-dark)] rounded-xl border border-[var(--border)] overflow-hidden shadow-sm flex flex-col"
+                  >
+                    <div
+                      class="bg-[var(--valur-red)] p-3 text-white flex justify-between items-center bg-opacity-90"
+                    >
+                      <h3
+                        class="font-semibold tracking-wide text-sm uppercase flex items-center gap-2"
+                      >
+                        Zu erledigen
+                      </h3>
+                      <span
+                        class="text-xs font-mono bg-black/20 px-2 py-0.5 rounded-full"
+                      >
+                        3
+                         open
+                      </span>
+                    </div>
+                    <div
+                      class="flex-1 overflow-auto p-2 space-y-1"
+                    >
+                      <div
+                        class="group flex items-center gap-3 p-2 hover:bg-[var(--surface-highlight)]/30 rounded-lg cursor-pointer transition-all duration-200 select-none"
+                      >
+                        <div
+                          class="
+                                    w-5 h-5 rounded-md border flex items-center justify-center transition-all duration-300
+                                    border-slate-500 group-hover:border-slate-300 bg-slate-800/50
+                                "
+                        />
+                        <div
+                          class="flex flex-col"
+                        >
+                          <span
+                            class="
+                                        transition-all duration-300 font-medium
+                                        text-[var(--text-primary)]
+                                    "
+                          >
+                            Blumen gießen
+                          </span>
+                        </div>
+                      </div>
+                      <div
+                        class="group flex items-center gap-3 p-2 hover:bg-[var(--surface-highlight)]/30 rounded-lg cursor-pointer transition-all duration-200 select-none"
+                      >
+                        <div
+                          class="
+                                    w-5 h-5 rounded-md border flex items-center justify-center transition-all duration-300
+                                    border-slate-500 group-hover:border-slate-300 bg-slate-800/50
+                                "
+                        />
+                        <div
+                          class="flex flex-col"
+                        >
+                          <span
+                            class="
+                                        transition-all duration-300 font-medium
+                                        text-[var(--text-primary)]
+                                    "
+                          >
+                            Müll rausbringen
+                          </span>
+                          <span
+                            class="text-[10px] text-orange-400/80 font-medium tracking-wide flex items-center gap-1"
+                          >
+                            <span
+                              class="w-1 h-1 rounded-full bg-orange-400/80"
+                            />
+                            Related to activity
+                          </span>
+                        </div>
+                      </div>
+                      <div
+                        class="group flex items-center gap-3 p-2 hover:bg-[var(--surface-highlight)]/30 rounded-lg cursor-pointer transition-all duration-200 select-none"
+                      >
+                        <div
+                          class="
+                                    w-5 h-5 rounded-md border flex items-center justify-center transition-all duration-300
+                                    bg-green-500 border-green-500 scale-90
+                                "
+                        >
+                          <svg
+                            class="w-3.5 h-3.5 text-white animate-in zoom-in duration-200"
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
+                          >
+                            <path
+                              d="M5 13l4 4L19 7"
+                              stroke-linecap="round"
+                              stroke-linejoin="round"
+                              stroke-width="3"
+                            />
+                          </svg>
+                        </div>
+                        <div
+                          class="flex flex-col"
+                        >
+                          <span
+                            class="
+                                        transition-all duration-300 font-medium
+                                        text-[var(--text-secondary)] line-through decoration-slate-600 opacity-60
+                                    "
+                          >
+                            Spülmaschine ausräumen
+                          </span>
+                        </div>
+                      </div>
+                      <div
+                        class="group flex items-center gap-3 p-2 hover:bg-[var(--surface-highlight)]/30 rounded-lg cursor-pointer transition-all duration-200 select-none"
+                      >
+                        <div
+                          class="
+                                    w-5 h-5 rounded-md border flex items-center justify-center transition-all duration-300
+                                    border-slate-500 group-hover:border-slate-300 bg-slate-800/50
+                                "
+                        />
+                        <div
+                          class="flex flex-col"
+                        >
+                          <span
+                            class="
+                                        transition-all duration-300 font-medium
+                                        text-[var(--text-primary)]
+                                    "
+                          >
+                            Wash Soccer Kit
+                          </span>
+                          <span
+                            class="text-[10px] text-orange-400/80 font-medium tracking-wide flex items-center gap-1"
+                          >
+                            <span
+                              class="w-1 h-1 rounded-full bg-orange-400/80"
+                            />
+                            Related to activity
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div
+                class="flex-[2] min-h-0"
+              >
+                <div
+                  class="flex flex-col h-full bg-[var(--surface-dark)] rounded-xl border border-[var(--border)] overflow-hidden shadow-sm"
+                >
+                  <div
+                    class="p-4 border-b border-[var(--border)] bg-[var(--surface-highlight)]/10"
+                  >
+                    <h2
+                      class="text-sm font-semibold text-[var(--text-secondary)] uppercase tracking-widest"
+                    >
+                      Recent Activity
+                    </h2>
+                  </div>
+                  <div
+                    class="flex-1 overflow-hidden p-0"
+                  >
+                    <ul
+                      class="divide-y divide-[var(--border)]"
+                    >
+                      <li
+                        class="
+                            p-4 hover:bg-[var(--surface-highlight)]/5 transition-colors animate-in fade-in duration-500
+                            
+                        "
+                      >
+                        <div
+                          class="flex flex-col gap-1"
+                        >
+                          <span
+                            class="text-sm text-[var(--text-primary)] font-medium leading-relaxed"
+                          >
+                            Alex added "Milk" to Shopping List
+                          </span>
+                          <div
+                            class="flex items-center gap-2 text-xs text-[var(--text-secondary)]"
+                          >
+                            <span
+                              class="font-mono"
+                            >
+                              10 minutes ago
+                            </span>
+                            <span>
+                              •
+                            </span>
+                            <span
+                              class="bg-[var(--surface-highlight)] px-1.5 py-0.5 rounded text-[10px] uppercase font-bold tracking-wide"
+                            >
+                              Alex
+                            </span>
+                          </div>
+                        </div>
+                      </li>
+                      <li
+                        class="
+                            p-4 hover:bg-[var(--surface-highlight)]/5 transition-colors animate-in fade-in duration-500
+                            bg-orange-500/5 border-l-2 border-orange-500/50 pl-[14px]
+                        "
+                      >
+                        <div
+                          class="flex flex-col gap-1"
+                        >
+                          <span
+                            class="text-sm text-[var(--text-primary)] font-medium leading-relaxed"
+                          >
+                            Dentist appointment updated
+                          </span>
+                          <div
+                            class="flex items-center gap-2 text-xs text-[var(--text-secondary)]"
+                          >
+                            <span
+                              class="font-mono"
+                            >
+                              1 hour ago
+                            </span>
+                            <span>
+                              •
+                            </span>
+                            <span
+                              class="text-orange-400 font-medium"
+                            >
+                              busy-week
+                            </span>
+                          </div>
+                        </div>
+                      </li>
+                      <li
+                        class="
+                            p-4 hover:bg-[var(--surface-highlight)]/5 transition-colors animate-in fade-in duration-500
+                            
+                        "
+                      >
+                        <div
+                          class="flex flex-col gap-1"
+                        >
+                          <span
+                            class="text-sm text-[var(--text-primary)] font-medium leading-relaxed"
+                          >
+                            Message from Dad: "I'll be late tonight"
+                          </span>
+                          <div
+                            class="flex items-center gap-2 text-xs text-[var(--text-secondary)]"
+                          >
+                            <span
+                              class="font-mono"
+                            >
+                              2 hours ago
+                            </span>
+                            <span>
+                              •
+                            </span>
+                            <span
+                              class="bg-[var(--surface-highlight)] px-1.5 py-0.5 rounded text-[10px] uppercase font-bold tracking-wide"
+                            >
+                              Dad
+                            </span>
+                          </div>
+                        </div>
+                      </li>
+                      <li
+                        class="
+                            p-4 hover:bg-[var(--surface-highlight)]/5 transition-colors animate-in fade-in duration-500
+                            
+                        "
+                      >
+                        <div
+                          class="flex flex-col gap-1"
+                        >
+                          <span
+                            class="text-sm text-[var(--text-primary)] font-medium leading-relaxed"
+                          >
+                            Task "Water Plants" marked as done
+                          </span>
+                          <div
+                            class="flex items-center gap-2 text-xs text-[var(--text-secondary)]"
+                          >
+                            <span
+                              class="font-mono"
+                            >
+                              Yesterday
+                            </span>
+                            <span>
+                              •
+                            </span>
+                            <span
+                              class="bg-[var(--surface-highlight)] px-1.5 py-0.5 rounded text-[10px] uppercase font-bold tracking-wide"
+                            >
+                              Mom
+                            </span>
+                          </div>
+                        </div>
+                      </li>
+                      <li
+                        class="
+                            p-4 hover:bg-[var(--surface-highlight)]/5 transition-colors animate-in fade-in duration-500
+                            bg-orange-500/5 border-l-2 border-orange-500/50 pl-[14px]
+                        "
+                      >
+                        <div
+                          class="flex flex-col gap-1"
+                        >
+                          <span
+                            class="text-sm text-[var(--text-primary)] font-medium leading-relaxed"
+                          >
+                            Soccer Coach posted a new schedule
+                          </span>
+                          <div
+                            class="flex items-center gap-2 text-xs text-[var(--text-secondary)]"
+                          >
+                            <span
+                              class="font-mono"
+                            >
+                              3 hours ago
+                            </span>
+                            <span>
+                              •
+                            </span>
+                            <span
+                              class="text-orange-400 font-medium"
+                            >
+                              soccer
+                            </span>
+                          </div>
+                        </div>
+                      </li>
+                    </ul>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
       <div
-        class="flex items-center gap-4"
+        class="flex-none z-30 pb-4 px-4 md:px-8"
       >
         <div
-          class="text-xs uppercase tracking-wider font-bold text-slate-600"
-        >
-          Ambient
-        </div>
-        <div
-          class="font-mono text-slate-400"
-        >
-          21:25
-        </div>
-      </div>
-    </div>
-    <div
-      class="flex-1 h-full overflow-hidden relative"
-    >
-      <div
-        class="flex flex-col items-center justify-center h-full space-y-8 animate-in fade-in duration-700"
-      >
-        <div
-          class="text-center"
+          class="w-full max-w-4xl mx-auto flex flex-col gap-3 transition-opacity duration-300 "
         >
           <div
-            class="text-8xl font-thin tracking-tighter text-slate-200"
+            class="flex flex-wrap gap-2 justify-center md:justify-start animate-in fade-in slide-in-from-bottom-1 duration-300 mb-1"
           >
-            21:25:08
+            <button
+              class="text-xs font-medium text-[var(--accent-gold)] bg-[var(--surface-highlight)]/30 hover:bg-[var(--surface-highlight)] border border-[var(--border)] hover:border-[var(--accent-gold)] px-4 py-2 rounded-full transition-all cursor-pointer shadow-sm"
+            >
+              Was steht heute an?
+            </button>
+            <button
+              class="text-xs font-medium text-[var(--accent-gold)] bg-[var(--surface-highlight)]/30 hover:bg-[var(--surface-highlight)] border border-[var(--border)] hover:border-[var(--accent-gold)] px-4 py-2 rounded-full transition-all cursor-pointer shadow-sm"
+            >
+              Zeig mir meine nächsten Termine
+            </button>
+            <button
+              class="text-xs font-medium text-[var(--accent-gold)] bg-[var(--surface-highlight)]/30 hover:bg-[var(--surface-highlight)] border border-[var(--border)] hover:border-[var(--accent-gold)] px-4 py-2 rounded-full transition-all cursor-pointer shadow-sm"
+            >
+              Was ist heute wichtig?
+            </button>
+            <button
+              class="text-xs font-medium text-[var(--accent-gold)] bg-[var(--surface-highlight)]/30 hover:bg-[var(--surface-highlight)] border border-[var(--border)] hover:border-[var(--accent-gold)] px-4 py-2 rounded-full transition-all cursor-pointer shadow-sm"
+            >
+              Schreib Brot auf die Einkaufsliste
+            </button>
           </div>
           <div
-            class="text-2xl font-light text-slate-400 mt-2"
+            class="flex items-center gap-3 bg-[var(--surface-dark)] p-2 rounded-2xl border border-[var(--border)] shadow-lg focus-within:ring-2 focus-within:ring-[var(--interaction-blue)] transition-shadow"
           >
-            Freitag, 19. Dezember
-          </div>
-        </div>
-        <div
-          class="bg-slate-800/50 p-6 rounded-2xl backdrop-blur-sm border border-slate-700/50 w-full max-w-md transition-all hover:bg-slate-800/70"
-        >
-          <h3
-            class="text-xs uppercase tracking-widest text-slate-500 mb-4 font-bold flex items-center gap-2"
-          >
-            <span
-              class="w-2 h-2 rounded-full bg-blue-500"
+            <input
+              class="flex-1 bg-transparent px-3 py-2 text-[var(--text-primary)] placeholder:[var(--text-secondary)] focus:outline-none disabled:cursor-not-allowed text-base font-medium"
+              placeholder="Frag Valur..."
+              value=""
             />
-            Up Next
-          </h3>
-          <div
-            class="opacity-60"
-          >
-            No upcoming events
+            <button
+              class="
+                        w-10 h-10 rounded-xl flex items-center justify-center transition-all
+                        bg-[var(--surface-highlight)] text-slate-500 cursor-not-allowed
+                    "
+              disabled=""
+            >
+              <svg
+                class="w-5 h-5"
+                fill="currentColor"
+                viewBox="0 0 24 24"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path
+                  d="M3.478 2.404a.75.75 0 0 0-.926.941l2.432 7.905H13.5a.75.75 0 0 1 0 1.5H4.984l-2.432 7.905a.75.75 0 0 0 .926.94 60.519 60.519 0 0 0 18.445-8.986.75.75 0 0 0 0-1.218A60.517 60.517 0 0 0 3.478 2.404Z"
+                />
+              </svg>
+            </button>
           </div>
         </div>
       </div>
-    </div>
-    <div
-      class="flex gap-2 p-3 border-t bg-slate-900 border-slate-800"
-    >
-      <input
-        class="flex-1 border border-slate-700 bg-slate-800 px-3 py-2 rounded-lg text-slate-100 placeholder:text-slate-500 focus:outline-none focus:ring-1 focus:ring-blue-500 transition-all"
-        placeholder="Wake up FamilyHub..."
-        value=""
-      />
-      <button
-        class="px-4 py-2 bg-slate-800 hover:bg-slate-700 border border-slate-700 rounded-lg text-slate-300 font-medium transition-colors"
-        disabled=""
-      >
-        Send
-      </button>
-    </div>
+    </main>
   </div>
 </div>
 `;

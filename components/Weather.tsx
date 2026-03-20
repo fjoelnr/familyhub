@@ -8,14 +8,31 @@ interface WeatherProps {
   lon: number;
 }
 
+interface WeatherData {
+  current_weather: {
+    temperature: number;
+    weathercode: number;
+    windspeed: number;
+  };
+  daily: {
+    time: string[];
+    weathercode: number[];
+    temperature_2m_max: number[];
+    temperature_2m_min: number[];
+    precipitation_sum?: number[];
+  };
+}
+
 export default function Weather({ lat, lon }: WeatherProps) {
-  const [data, setData] = useState<any | null>(null);
+  const [data, setData] = useState<WeatherData | null>(null);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     fetchWeatherOpenMeteo(lat, lon)
-      .then(setData)
-      .catch((e) => setError(e.message));
+      .then((result) => setData(result as WeatherData))
+      .catch((e: unknown) => {
+        setError(e instanceof Error ? e.message : "Unbekannter Wetterfehler");
+      });
   }, [lat, lon]);
 
   if (error) return <div className="text-red-400">Fehler: {error}</div>;

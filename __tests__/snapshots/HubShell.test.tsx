@@ -6,13 +6,20 @@ import { FamilyHubProvider } from '@/lib/contexts/FamilyHubContext';
 import { AgentRuntimeProvider } from '@/lib/contexts/AgentRuntimeContext';
 
 describe('HubShell Snapshot', () => {
-    it('renders correctly with children', () => {
+    beforeAll(() => {
+        jest.useFakeTimers();
+        jest.setSystemTime(new Date('2026-03-20T12:30:00.000Z'));
+    });
+
+    afterAll(() => {
+        jest.useRealTimers();
+    });
+
+    it('renders correctly', () => {
         const { container } = render(
             <FamilyHubProvider>
                 <AgentRuntimeProvider>
-                    <HubShell>
-                        <div>Test Content</div>
-                    </HubShell>
+                    <HubShell />
                 </AgentRuntimeProvider>
             </FamilyHubProvider>
         );
