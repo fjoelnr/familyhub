@@ -1,17 +1,32 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`HubShell Snapshot renders correctly with children 1`] = `
+exports[`HubShell Snapshot renders correctly 1`] = `
 <div>
-  <main
-    class="min-h-screen bg-gray-900 text-gray-100 p-8 space-y-6"
+  <div
+    class="flex flex-col h-screen overflow-hidden transition-colors duration-500 bg-[var(--background-dark)]"
   >
-    <div
-      class="max-w-5xl mx-auto space-y-6"
+    <main
+      class="flex flex-col flex-1 relative min-w-0"
     >
-      <div>
-        Test Content
+      <div
+        class="flex-1 overflow-hidden relative"
+      >
+        <div
+          data-testid="fluid-stage"
+        >
+          FluidStage
+        </div>
       </div>
-    </div>
-  </main>
+      <div
+        class="flex-none z-30 pb-4 px-4 md:px-8"
+      >
+        <div
+          data-testid="input-deck"
+        >
+          InputDeck
+        </div>
+      </div>
+    </main>
+  </div>
 </div>
 `;

@@ -1,13 +1,12 @@
 /**
  * @jest-environment node
  */
+import { NextRequest } from 'next/server';
 import { GET, POST, PUT, DELETE } from '@/app/api/calendar/route';
 
-// We switch to node environment for API tests usually, but let's see. 
-// If we use 'next/server' NextResponse, it works in Node too.
-// We'll use the Request global which is available in Node 18+ or polyfilled.
-
 describe('Calendar API', () => {
+    const fetchMock = jest.fn();
+
     // Basic valid event payload
     const mockEventPayload = {
         title: 'New API Event',
@@ -18,18 +17,37 @@ describe('Calendar API', () => {
         source: 'api'
     };
 
+    beforeEach(() => {
+        fetchMock.mockReset();
+        global.fetch = fetchMock as typeof fetch;
+    });
+
     it('GET returns a list of events', async () => {
-        const response = await GET();
+        fetchMock.mockResolvedValueOnce(
+            new Response(JSON.stringify([{ id: '1', title: 'Test Event' }]), {
+                status: 200,
+                headers: { 'Content-Type': 'application/json' }
+            })
+        );
+
+        const mockRequest = new NextRequest('http://localhost/api/calendar?start=2023-01-01&end=2023-01-31');
+        const response = await GET(mockRequest);
         const data = await response.json();
 
-        // Initial state is empty or as defined in the file
         expect(response.status).toBe(200);
         expect(Array.isArray(data)).toBe(true);
+        expect(fetchMock).toHaveBeenCalledTimes(1);
     });
 
     it('POST adds a new event', async () => {
-        // Create a mock Request
-        const req = new Request('http://localhost/api/calendar', {
+        fetchMock.mockResolvedValueOnce(
+            new Response(JSON.stringify({ ...mockEventPayload, id: 'generated-id' }), {
+                status: 200,
+                headers: { 'Content-Type': 'application/json' }
+            })
+        );
+
+        const req = new NextRequest('http://localhost/api/calendar', {
             method: 'POST',
             body: JSON.stringify(mockEventPayload)
         });
@@ -39,11 +57,18 @@ describe('Calendar API', () => {
 
         expect(response.status).toBe(201);
         expect(data.title).toBe(mockEventPayload.title);
-        expect(data.id).toBeTruthy(); // Should have generated an ID
+        expect(data.id).toBeTruthy();
     });
 
     it('PUT updates an event (stub)', async () => {
-        const req = new Request('http://localhost/api/calendar', {
+        fetchMock.mockResolvedValueOnce(
+            new Response(JSON.stringify({ ...mockEventPayload, id: '1', title: 'Updated' }), {
+                status: 200,
+                headers: { 'Content-Type': 'application/json' }
+            })
+        );
+
+        const req = new NextRequest('http://localhost/api/calendar', {
             method: 'PUT',
             body: JSON.stringify({ ...mockEventPayload, id: '1', title: 'Updated' })
         });
@@ -55,7 +80,14 @@ describe('Calendar API', () => {
     });
 
     it('DELETE removes an event (stub)', async () => {
-        const req = new Request('http://localhost/api/calendar?id=1', {
+        fetchMock.mockResolvedValueOnce(
+            new Response(JSON.stringify({ success: true }), {
+                status: 200,
+                headers: { 'Content-Type': 'application/json' }
+            })
+        );
+
+        const req = new NextRequest('http://localhost/api/calendar?id=1&calendarId=test', {
             method: 'DELETE'
         });
 

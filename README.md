@@ -1,3 +1,41 @@
+# FamilyHub
+
+**FamilyHub ist ein gemeinsamer digitaler Ort für die Familie.**
+
+Er dient als ruhiger Bezugspunkt im Alltag und basiert auf drei Säulen:
+
+*   **Informations-Ort**: Der zentrale Punkt für Orientierung im Alltag. Hier laufen wichtige Informationen zusammen, damit alle den Überblick behalten.
+*   **Organisations-Ort**: Unterstützung bei der gemeinsamen Planung, Terminen und täglichen Abläufen.
+*   **Wissens- & Erinnerungs-Ort**: Ein bewahrter Platz für Notizen, Wissen und festgehaltene Erinnerungen.
+
+FamilyHub ist bewusst einfach gehalten und wächst mit den Bedürfnissen der Familie.
+
+---
+
+## Was FamilyHub Leisten Soll
+
+- zentrale Alltagsübersicht für die Familie
+- gemeinsamer Ort für Termine, relevante Informationen und Routinen
+- ruhige Oberfläche statt Tool-Wildwuchs
+- technische Basis für spätere Assistenz- und Automatisierungsfunktionen
+
+## Produktbild
+
+FamilyHub verbindet drei Ebenen:
+
+1. **Dashboard** für Orientierung im Alltag
+2. **Integrationen** für Kalender, Wetter und weitere Datenquellen
+3. **Assistenzlogik** für spätere familiennahe Agent- und Workflow-Funktionen
+
+## Status
+
+- Repositorium: aktiv
+- Stack: Next.js, React, TypeScript
+- Integrationsschwerpunkte: CalDAV, Wetter, MCP-/n8n-nahe Workflows
+- Branch-Flow: `feature -> develop -> main`
+
+## Technische Basis
+
 This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
 
 ## Getting Started
@@ -20,6 +58,39 @@ You can start editing the page by modifying `app/page.tsx`. The page auto-update
 
 This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
 
+## Konfiguration
+
+Create a `.env.local` file with the following variables:
+
+```env
+# Weather (OpenWeatherMap)
+OPENWEATHER_API_KEY=your_api_key_here
+
+# Calendar (CalDAV / Baikal)
+CALDAV_URL=https://your-baikal-server/dav/calendars/user/calendar_name/
+CALDAV_USERNAME=your_username
+CALDAV_PASSWORD=your_password
+
+# Development
+USE_MOCK_DATA=false
+```
+
+## Wichtige Befehle
+
+```bash
+npm run dev
+npm run lint
+npm test
+npm run build
+```
+
+## Projekt-Dokumentation
+
+- Status: [docs/STATUS.md](docs/STATUS.md)
+- n8n / Workflow-Dokumentation: [docs/n8n/README.md](docs/n8n/README.md)
+- Governance: [docs/governance/familyhub_governance.md](docs/governance/familyhub_governance.md)
+- MCP / Diagnose: [docs/mcp/diagnostic_playbook.md](docs/mcp/diagnostic_playbook.md)
+
 ## Learn More
 
 To learn more about Next.js, take a look at the following resources:
@@ -38,23 +109,6 @@ Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/bui
 ## Data Sync & APIs
 
 This project includes utilities for fetching Weather and Calendar data.
-
-### Configuration
-
-Create a `.env.local` file with the following variables:
-
-```env
-# Weather (OpenWeatherMap)
-OPENWEATHER_API_KEY=your_api_key_here
-
-# Calendar (CalDAV / Baïkal)
-CALDAV_URL=https://your-baikal-server/dav/calendars/user/calendar_name/
-CALDAV_USERNAME=your_username
-CALDAV_PASSWORD=your_password
-
-# Development
-USE_MOCK_DATA=false # Set to true to use offline mock data
-```
 
 ### Usage
 
@@ -83,4 +137,11 @@ Run unit tests with:
 
 ```bash
 npm test
+```
+
+## Deployment (Target Platform)
+
+```bash
+git pull
+docker compose up -d --build
 ```

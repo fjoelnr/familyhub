@@ -1,6 +1,7 @@
 import { processCalendarIntent } from '../calendarAgent';
 import { CalendarSync } from '../../api/calendarSync';
 import { createChatResponse } from '../../ai/chatOrchestrator';
+import { IntentResult } from '../../ai/intentClassifier';
 
 // Mock dependencies
 jest.mock('../../api/calendarSync');
@@ -27,11 +28,11 @@ describe('CalendarActionAgent', () => {
         device: { type: "hub", location: "kitchen" }
     };
 
-    const mockIntent = {
+    const mockIntent: IntentResult = {
         intent: "calendar_action",
         confidence: 0.9,
         rawInput: "test input"
-    } as any;
+    };
 
     it('should handle "listing" action successfully', async () => {
         // Mock LLM response for listing

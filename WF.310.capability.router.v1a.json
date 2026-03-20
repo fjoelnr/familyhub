@@ -1,0 +1,181 @@
+{
+    "name": "WF.310.capability.router.v1",
+    "nodes": [
+        {
+            "id": "trigger",
+            "name": "Execute Workflow Trigger",
+            "type": "n8n-nodes-base.executeWorkflowTrigger",
+            "typeVersion": 1,
+            "position": [
+                0,
+                0
+            ]
+        },
+        {
+            "id": "classifier",
+            "name": "Ollama Classifier",
+            "type": "n8n-nodes-base.ollama",
+            "typeVersion": 1,
+            "position": [
+                300,
+                0
+            ],
+            "parameters": {
+                "model": "llama3:latest",
+                "prompt": "Classify the user intent strictly as JSON: {\"intent\":\"calendar\"|\"chat\"}.\nMessage: {{$json.message}}",
+                "responseFormat": "json"
+            }
+        },
+        {
+            "id": "route",
+            "name": "Route Intent",
+            "type": "n8n-nodes-base.if",
+            "typeVersion": 1,
+            "position": [
+                600,
+                0
+            ],
+            "parameters": {
+                "conditions": {
+                    "string": [
+                        {
+                            "value1": "={{$json.intent}}",
+                            "operation": "equals",
+                            "value2": "calendar"
+                        }
+                    ]
+                }
+            }
+        },
+        {
+            "id": "execCalendar",
+            "name": "Exec Calendar",
+            "type": "n8n-nodes-base.executeWorkflow",
+            "typeVersion": 1,
+            "position": [
+                900,
+                -150
+            ],
+            "parameters": {
+                "workflowId": "WF.320.calendar.read.v1",
+                "options": {}
+            }
+        },
+        {
+            "id": "execFallback",
+            "name": "Exec Fallback",
+            "type": "n8n-nodes-base.executeWorkflow",
+            "typeVersion": 1,
+            "position": [
+                900,
+                150
+            ],
+            "parameters": {
+                "workflowId": "WF.399.fallback.chat.v1",
+                "options": {}
+            }
+        },
+        {
+            "id": "merge",
+            "name": "Merge Result",
+            "type": "n8n-nodes-base.merge",
+            "typeVersion": 2,
+            "position": [
+                1200,
+                0
+            ],
+            "parameters": {
+                "mode": "passThrough"
+            }
+        },
+        {
+            "id": "return",
+            "name": "Return Result",
+            "type": "n8n-nodes-base.code",
+            "typeVersion": 1,
+            "position": [
+                1500,
+                0
+            ],
+            "parameters": {
+                "language": "javascript",
+                "code": "return [items[0]];"
+            }
+        }
+    ],
+    "connections": {
+        "Execute Workflow Trigger": {
+            "main": [
+                [
+                    {
+                        "node": "Ollama Classifier",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Ollama Classifier": {
+            "main": [
+                [
+                    {
+                        "node": "Route Intent",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Route Intent": {
+            "main": [
+                [
+                    {
+                        "node": "Exec Calendar",
+                        "type": "main",
+                        "index": 0
+                    }
+                ],
+                [
+                    {
+                        "node": "Exec Fallback",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Exec Calendar": {
+            "main": [
+                [
+                    {
+                        "node": "Merge Result",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Exec Fallback": {
+            "main": [
+                [
+                    {
+                        "node": "Merge Result",
+                        "type": "main",
+                        "index": 1
+                    }
+                ]
+            ]
+        },
+        "Merge Result": {
+            "main": [
+                [
+                    {
+                        "node": "Return Result",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        }
+    }
+}

@@ -1,0 +1,36 @@
+  % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
+                                 Dload  Upload   Total   Spent    Left  Speed
+  0     0    0     0    0     0      0      0 --:--:-- --:--:-- --:--:--     0*   Trying 192.168.178.99:80...
+* Established connection to 192.168.178.99 (192.168.178.99 port 80) from 192.168.178.40 port 51664 
+* using HTTP/1.x
+* Server auth using Digest with user 'fjoelnir'
+> REPORT /dav.php/calendars/fjoelnir/valur/ HTTP/1.1
+> Host: 192.168.178.99
+> User-Agent: curl/8.16.0
+> Accept: */*
+> Content-Type: application/xml
+> Depth: 1
+> Content-Length: 0
+> 
+* Request completely sent off
+< HTTP/1.1 500 Internal Server Error
+< Date: Wed, 24 Dec 2025 23:35:17 GMT
+< Server: Apache/2.4.65 (Debian)
+< Set-Cookie: PHPSESSID=m2giv2ted2pfd3qpf2b25umv0p; path=/; HttpOnly
+< Expires: Thu, 19 Nov 1981 08:52:00 GMT
+< Cache-Control: no-store, no-cache, must-revalidate
+< Pragma: no-cache
+< X-Sabre-Version: 4.7.0
+< Content-Length: 297
+< Connection: close
+< Content-Type: application/xml; charset=utf-8
+< 
+{ [297 bytes data]
+100   297  100   297    0     0   6377      0 --:--:-- --:--:-- --:--:--  6456
+* shutting down connection #0
+<?xml version="1.0" encoding="utf-8"?>
+<d:error xmlns:d="DAV:" xmlns:s="http://sabredav.org/ns">
+  <s:sabredav-version>4.7.0</s:sabredav-version>
+  <s:exception>Sabre\Xml\ParseException</s:exception>
+  <s:message>The input element to parse is empty. Do not attempt to parse</s:message>
+</d:error>

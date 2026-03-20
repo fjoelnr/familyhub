@@ -66,3 +66,17 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# debug and ad-hoc investigation outputs
+debug_*.json
+debug_*.txt
+response*.json
+response*.txt
+output_*.txt
+test_results*.json
+test_output.txt
+curl_*.txt
+query_today.xml
+verification_*.json
+test_*.json
+WF.*.json

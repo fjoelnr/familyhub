@@ -1,0 +1,111 @@
+{
+    "name": "WF.320.calendar.read.v1",
+    "nodes": [
+        {
+            "parameters": {},
+            "id": "trigger",
+            "name": "Execute Workflow Trigger",
+            "type": "n8n-nodes-base.executeWorkflowTrigger",
+            "typeVersion": 1,
+            "position": [
+                0,
+                0
+            ]
+        },
+        {
+            "parameters": {
+                "jsCode": "// Calculate Today's Range in 'Europe/Berlin' Wall Clock Time\n// We output format: YYYY-MM-DDTHH:mm:ss (No 'Z' offset)\n// This forces Google Calendar to interpret the time in the Calendar's own timezone.\n\nconst timeZone = 'Europe/Berlin';\n\nconst now = new Date();\n\n// Helpers to Format as Local ISO-like String without Z\nconst getLocalISO = (dateObj) => {\n  return dateObj.toLocaleString('sv-SE', { \n    timeZone: timeZone, \n    year: 'numeric', \n    month: '2-digit', \n    day: '2-digit', \n    hour: '2-digit', \n    minute: '2-digit', \n    second: '2-digit'\n  }).replace(' ', 'T');\n};\n\n// Construct Start and End of Today (Local Wall Time)\nconst todayStr = new Date().toLocaleString('en-US', { timeZone: timeZone });\nconst start = new Date(todayStr);\nstart.setHours(0,0,0,0);\n\nconst end = new Date(todayStr);\nend.setHours(23,59,59,999);\n\nreturn [{\n  json: {\n    start: getLocalISO(start),\n    end: getLocalISO(end),\n    range: \"today\",\n    timeZone: timeZone\n  }\n}];"
+            },
+            "type": "n8n-nodes-base.code",
+            "typeVersion": 2,
+            "position": [
+                220,
+                0
+            ],
+            "id": "date-calc",
+            "name": "Date Calculation"
+        },
+        {
+            "parameters": {
+                "resource": "event",
+                "operation": "getAll",
+                "calendar": {
+                    "__rl": true,
+                    "value": "primary",
+                    "mode": "list",
+                    "cachedResultName": "Primary Calendar"
+                },
+                "returnAll": true,
+                "options": {
+                    "timeMin": "={{ $json.start }}",
+                    "timeMax": "={{ $json.end }}",
+                    "singleEvents": true,
+                    "orderBy": "startTime"
+                }
+            },
+            "type": "n8n-nodes-base.googleCalendar",
+            "typeVersion": 1,
+            "position": [
+                440,
+                0
+            ],
+            "id": "google-calendar",
+            "name": "Google Calendar",
+            "alwaysOutputData": true,
+            "credentials": {
+                "googleCalendarOAuth2Api": {
+                    "id": "YOUR_CREDENTIAL_ID",
+                    "name": "Google Calendar Account"
+                }
+            }
+        },
+        {
+            "parameters": {
+                "jsCode": "const events = [];\n\nfor (const item of items) {\n  const e = item.json;\n  \n  // Skip invalid/empty items\n  if (!e || (!e.summary && !e.start)) continue;\n\n  const startData = e.start || {};\n  const endData = e.end || {};\n\n  // Heuristic: If 'date' field exists and 'dateTime' does not, it's All Day\n  const isAllDay = !!startData.date && !startData.dateTime;\n  \n  const startVal = startData.dateTime || startData.date;\n  const endVal = endData.dateTime || endData.date;\n\n  events.push({\n    title: e.summary || \"(No Title)\",\n    start: startVal,\n    end: endVal,\n    allDay: isAllDay,\n    location: e.location || null,\n    description: e.description || null\n  });\n}\n\n// Strict Output Schema\nreturn [{\n  json: {\n    status: \"ok\",\n    reply: null,\n    actionResult: {\n        type: \"calendar_events\",\n        payload: {\n            count: events.length,\n            range: \"today\",\n            events: events\n        }\n    },\n    meta: {\n      workflow: \"WF.320.calendar.read.v1\"\n    }\n  }\n}];"
+            },
+            "type": "n8n-nodes-base.code",
+            "typeVersion": 2,
+            "position": [
+                660,
+                0
+            ],
+            "id": "format-response",
+            "name": "Format Response"
+        }
+    ],
+    "connections": {
+        "Execute Workflow Trigger": {
+            "main": [
+                [
+                    {
+                        "node": "Date Calculation",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Date Calculation": {
+            "main": [
+                [
+                    {
+                        "node": "Google Calendar",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Google Calendar": {
+            "main": [
+                [
+                    {
+                        "node": "Format Response",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        }
+    }
+}
